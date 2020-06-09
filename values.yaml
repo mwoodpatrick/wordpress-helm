@@ -87,7 +87,7 @@ wordpress:
     theme_fallback: twentytwenty
     # NOTE: Make sure you use underscore and that the localisation is in full caps
     locale: en_US
-    version: 5.2.3
+    version: 5.4.1
     url: "http://localhost"
     title: "Wordpress Helm"
     ## If including a plugin to alias wp login then set a path for alt and also set the config 
@@ -171,15 +171,14 @@ ansibleVars:
 wpSalts: {}
 
 image:
-  repository: docker.greenhost.net/open/wordpress-helm/wordpress
-  tag: 0.1.0
+  repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress
+  tag: 0.1.1
   pullPolicy: Always
 
 initImage:
-  repository: docker.greenhost.net/open/wordpress-helm/wordpress-cli-ansible
-  tag: 0.1.0
+  repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress-cli-ansible
+  tag: 0.1.1
   pullPolicy: Always
-  imagePullSecretName: greenhost-registry-pull
 
 ingress:
   enabled: false
