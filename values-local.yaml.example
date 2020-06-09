@@ -28,8 +28,7 @@ wordpress:
     theme: twentynineteen
     # NOTE: Make sure you use underscore and that the localisation is in full caps
     locale: en_US
-    # NOTE: Optionally set a Wordpress version number to override the default version: in values.yaml
-    # version: LOCAL-WORDPRESS-VERSION-NUMBER-OR-DELETE-THIS-LINE
+    version: 5.2.4
     # NOTE: This is the URL that points to your WordPress installation. If this
     # URL is set incorrectly your site will most likely not work. You can not
     # change it after you have run helm install once because WordPress saves the
@@ -38,11 +37,12 @@ wordpress:
     # WordPress database fields that contain the URL.
     url: "http://localhost"
     title: "Wordpress Helm"
-    # If you are including a plugin to alias wp login then set an alt_path and set alt_config options
-    # NOTE: A value for alt_enabled must be set. Select either true or false
-    alt_enabled: false
-    # alt_config: PATH-SETTING-IN-OPTIONS-TABLE
-    # alt_path: SOME-LOGIN-PATH
+    # If you are including a plugin to alias wp login then set an alt.path and set alt.config options
+    # NOTE: The value of alt enabled must be set as true or false
+    alt:
+      enabled: false
+    # config: PATH-SETTING-IN-OPTIONS-TABLE
+    # path: SOME-LOGIN-PATH
     # # Path used by the liveness and readiness probes to see if the site runs
     # # correctly. Defaults to `/wp-login.php`. Be sure to make this the same as
     # # alt_path if you use it!
@@ -66,29 +66,25 @@ wordpress:
   ## mu_plugins are installed as hidden and cannot be updated from the UI
   ## mu_dir  'mu-plugins' maps to wp-content/mu-plugins
   ## mu_plugins supplies a detailed list of mu values and plugins with versions 
-  # NOTE: A value for mu_plugins_enabled must be set. Select either true or false
 
   mu_plugins_enabled: false
   mu_plugins_dir: mu-plugins
   mu_plugins:
      block-bad-queries:
        name: Block Bad Queries
-       version: 20191109
+       version: 20200319
        phpfile: block-bad-queries.php
-  #  redis-cache:
-  #    name: Redis Cache
-  #    version: 1.5.6
-  #    phpfile: redis-cache.php
   
-  ## Enable externally triggered cron if a cron plugin is installed 
+  ## Enable externally triggered cron for an MU cron plugin 
   # NOTE: A value for mu_cron_enabled must be set. Select either true or false
-  mu_cron_enabled: false
-  # mu_cron:
-  #  name: Cron Control
-  #  repo: https://github.com/Automattic/Cron-Control.git
-  #  slug: cron-control
-  #  version: master
-  #  phpfile: cron-control.php
+  # NOTE: This cron must be triggered by a call you have set up outside the server
+  mu_cron:
+    enabled: false
+  # name: Cron Control
+  # repo: https://github.com/Automattic/Cron-Control.git
+  # slug: cron-control
+  # version: master
+  # phpfile: cron-control.php
 
 # These settings make sense to overwrite if you want to use the OpenID connect
 # plugin
@@ -112,16 +108,24 @@ database:
   replication:
     password: <SET A REPLICATION USER PASSWORD IF YOU HAVE REPLICATION ENABLED>
 
-# To enabe redis, uncomment this:
-# redis:
-#   enabled: true
-#   password: <SET A REDIS PASSWORD HERE>
+# Set this to true to have a Redis container next to your WP. The WP will be
+# configured to connect to this Redis and `Redis Object Cache` plugin will be
+# installed as a convential plugin and configured to connect to this Redis
+# Change Redis MU plugin configurations to use MU instead
+redis:
+  enabled: false
+# password: <SET A REDIS PASSWORD HERE>
 #
-#   # If you want redis to have persistence:
-#   master:
-#     persistence:
-#       enabled:
-#       storageClass:
+#   # Set to true you want redis to have persistence:
+# master:
+#   persistence:
+#     enabled: false
+#
+#   # Set to true to have a master and a slave redis. Not necessary for caching
+#   cluster:
+#     enabled: false
+
+
 
 # This will add a cronjob that performs a daily backup of the wordpress
 # database, copying an sql file created by `wp db export` to the given PVC.

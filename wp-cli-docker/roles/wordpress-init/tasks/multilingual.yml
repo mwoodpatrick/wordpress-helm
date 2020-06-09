@@ -13,15 +13,19 @@
     - debug:
         msg: "Trying the configured plugins"
     - name: Activate multilingual plugins if they exist in wp-content-repo 
-      shell: wp {{ cli_args }} plugin activate {{ item }}
-      with_items: "{{ WP_MULTILINGUAL_PLUGINS }}"
+      shell: wp {{ cli_args }} plugin activate {{ wp_multilingual_plugin }}
+      loop: "{{ WP_MULTILINGUAL_PLUGINS }}"
+      loop_control:
+        loop_var: wp_multilingual_plugin
     - debug:
         msg: 'Success'
   rescue:
     - debug:
         msg: 'Multilingual plugins do not exist or error'
     - name: Run wp plugin deativate for all
-      shell: wp {{ cli_args }} plugin deactivate {{ item }}
-      with_items: "{{ WP_MULTILINGUAL_PLUGINS }}"
+      shell: wp {{ cli_args }} plugin deactivate {{ wp_multilingual_plugin }}
+      loop: "{{ WP_MULTILINGUAL_PLUGINS }}"
+      loop_control:
+        loop_var: wp_multilingual_plugin
     - debug:
         msg: "Multilingual plugins are now deactivated"

@@ -87,14 +87,15 @@ wordpress:
     theme_fallback: twentytwenty
     # NOTE: Make sure you use underscore and that the localisation is in full caps
     locale: en_US
-    version: 5.4.1
+    version: 5.2.3
     url: "http://localhost"
     title: "Wordpress Helm"
-    ## If including a plugin to alias wp login then set an alt_path and set the alt_config 
-    # NOTE: A value for alt_enabled must be set. Select either true or false
-    alt_enabled: false
-    # alt_config: PATH-SETTING-IN-OPTIONS-TABLE
-    # alt_path: SOME-LOGIN-PATH
+    ## If including a plugin to alias wp login then set a path for alt and also set the config 
+    # NOTE: The value of alt enabled must be set as true or false
+    alt: 
+      enabled: false
+    # config: PATH-SETTING-IN-OPTIONS-TABLE
+    # path: SOME-LOGIN-PATH
     # Path used by the liveness and readiness probes to see if the site runs
     # correctly. Defaults to `/wp-login.php`
     probe_path: /wp-login.php
@@ -124,10 +125,10 @@ wordpress:
   mu_plugins: {}
 
   ## Enable externally triggered cron if a cron plugin is installed
-  # NOTE: A value for mu_cron_enabled must be set. Use either true or false
-  mu_cron_enabled: false
+  # NOTE: mu_cron must be have the "enabled" value set as either true or false
+  mu_cron: 
+    enabled: false
   # See values-local.yaml.example for an example value
-  mu_cron: {}
 
 persistence:
   ## Enable the use of a persistent volume
@@ -161,7 +162,8 @@ ansibleVars:
   mode_0440: u+r-wxs,u+r-wxs,o-rwx
   mode_0600: u+rw-xs,g-rwxs,o-rwx
 
-  config_files: "[wp-config.php, .htaccess]"
+  #Config Directory 
+  config_dir: /var/www
 
   ## Plugins
   wordpress_default_plugins: "[classic-editor]"
@@ -169,14 +171,15 @@ ansibleVars:
 wpSalts: {}
 
 image:
-  repository: open.greenhost.net:4567/open/wordpress-helm/wordpress
-  tag: 0.1.1
+  repository: docker.greenhost.net/open/wordpress-helm/wordpress
+  tag: 0.1.0
   pullPolicy: Always
 
 initImage:
-  repository: open.greenhost.net:4567/open/wordpress-helm/wordpress-cli-ansible
-  tag: 0.1.1
+  repository: docker.greenhost.net/open/wordpress-helm/wordpress-cli-ansible
+  tag: 0.1.0
   pullPolicy: Always
+  imagePullSecretName: greenhost-registry-pull
 
 ingress:
   enabled: false
@@ -191,9 +194,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-podAnnotations: {}
-
 database:
   db:
     user: wordpress
@@ -251,13 +251,17 @@ database:
       socket=/opt/bitnami/mariadb/tmp/mysql.sock
 
 redis:
-  # Set this to true to have a Redis container next to your WP. The WP will be
-  # configured to connect to this Redis and `Redis Object Cache` plugin will be
-  # installed
+# Set this to true to have a Redis container next to your WP. The WP will be
+# configured to connect to this Redis and `Redis Object Cache` plugin will be
+# installed as a conventional plugin.
   enabled: false
-  cluster:
-    # Set to true to have a master and a slave redis. Not necessary for caching
-    enabled: false
+  #   # Set to true you want redis to have persistence:
+  #   master:
+  #     persistence:
+  #       enabled: false
+  #  # Set to true to have a master and a slave redis. Not necessary for caching
+  #   cluster:
+  #     enabled: false
 
 backup:
   enabled: false
@@ -289,13 +293,13 @@ ansibleSecrets: |
   WP_URL: {{ .Values.wordpress.site.url }}
   WP_USER: {{ .Values.wordpress.config.adm.usid }}
   WP_VERSION: {{ .Values.wordpress.site.version }}
-  WP_ALT_ENABLED: {{ .Values.wordpress.site.alt_enabled }}
-  WP_ALT_CONFIG: {{ .Values.wordpress.site.alt_config }}
-  WP_ALT_PATH: {{ .Values.wordpress.site.alt_path }}
+  WP_ALT_ENABLED: {{ .Values.wordpress.site.alt.enabled }}
+  WP_ALT_CONFIG: {{ .Values.wordpress.site.alt.config }}
+  WP_ALT_PATH: {{ .Values.wordpress.site.alt.path }}
   WP_MU_PLUGINS_ENABLED: {{ .Values.wordpress.mu_plugins_enabled }}
   WP_MU_PLUGINS_DIR: {{ .Values.wordpress.mu_plugins_dir }}
   WP_MU_PLUGINS: {{ .Values.wordpress.mu_plugins | toJson }}
-  WP_MU_CRON_ENABLED: {{ .Values.wordpress.mu_cron_enabled }}
+  WP_MU_CRON_ENABLED: {{ .Values.wordpress.mu_cron.enabled }}
   WP_MU_CRON_SETTINGS: {{ .Values.wordpress.mu_cron | toJson }}
   WP_MULTILINGUAL_ENABLED: {{ .Values.wordpress.site.multilingual.enabled }}
   WP_MULTILINGUAL_PLUGINS: {{ .Values.wordpress.site.multilingual.plugins }}

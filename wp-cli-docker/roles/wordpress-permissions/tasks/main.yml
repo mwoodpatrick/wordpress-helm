@@ -6,40 +6,39 @@
 # Ensure there is a cache outside uploads
 - name: Add a wp-content cache directory
   file:
-    path: "{{ wordpress_homedir }}/wp-content/cache"
+    path: "{{ WP_CONTENT_DIR }}/cache"
     mode: 0750
     state: directory
 
 # Directories
 
 - name: Bulk directory ownership
-  command: find -L {{ wordpress_homedir }} -type d  -exec chown {{ wp_user }}:{{ wp_group }} {} \;
+  command: find {{ config_dir }} -type d  -exec chown -c {{ wp_user }}:{{ wp_group }} {} \;
 
 - name: Bulk directory permissions
-  command: find -L  {{ wordpress_homedir }} -type d  -exec chmod -c {{ mode_0750 }} {} \;
+  command: find  {{ config_dir }} -type d  -exec chmod -c {{ mode_0750 }} {} \;
 
 # Files 
-
 - name: Bulk file ownership
-  command: find -L  {{ wordpress_homedir }} -type f -not -name '{{ item }}'  -exec chown {{ wp_user }}:{{ wp_group }} {} \;
-  with_items: "{{ config_files }}"
+  command: find  {{ config_dir }} -type f \( -iname "*.*" ! -iname  "*htaccess" ! -iname "wp-config*"  \)  -exec chown -c {{ wp_user }}:{{ wp_group }} {} \;
 
 - name: Dot file ownership
-  command: find -L {{ wordpress_homedir }} -type f -maxdepth 1 -not -name '{{ item }}' -name '\.*' -exec chown {{ config_user }}:{{ config_group }} {} \;
-  with_items: "{{ config_files }}"
+  command: find {{ wordpress_homedir }} -type f -maxdepth 1 \( -iname "\.*" ! -iname  "*htaccess" ! -iname "wp-config*"  \) -exec chown -c {{ config_user }}:{{ config_group }} {} \;
 
 - name: Config file ownership
-  command: find -L {{ wordpress_homedir }} -type f -name '{{ item }}'  -exec chown {{ config_user }}:{{ config_group }} {} \;
-  with_items: "{{ config_files }}"
+  command: find {{ config_dir }} -type f \( -iname  "*htaccess" -o -iname "wp-config*" ! -path "*wp-content-mount/.htaccess"  \)  -exec chown -c {{ config_user }}:{{ config_group }} {} \;
 
 - name: Bulk file permissions 
-  command: find -L  {{ wordpress_homedir }} -type f -not -name '{{ item }}'  -exec chmod -c {{ mode_0640 }} {} \;
-  with_items: "{{ config_files }}"
+  command: find  {{ config_dir }} -type f \( -iname "*.*" ! -iname  "*htaccess" ! -iname "wp-config*"  \)  -exec chmod -c {{ mode_0640 }} {} \;
 
 - name: Dot file permissions
-  command: find -L {{ wordpress_homedir }} -type f -maxdepth 1 -not -name '{{ item }}' -name '\.*'  -exec chmod -c {{ mode_0440 }} {} \;
-  with_items: "{{ config_files }}"
+  command: find {{ wordpress_homedir }} -type f -maxdepth 1 \( -iname "\.*" ! -iname  "*htaccess" ! -iname "wp-config*"  \)  -exec chmod -c {{ mode_0440 }} {} \;
 
-- name: Config file permissions
-  command: find -L {{ wordpress_homedir }} -type f  -name '{{ item }}' -exec chmod -c {{ mode_0440 }} {} \;
-  with_items: "{{ config_files }}"
+- name: HTaccess file permissions
+  command: find {{ config_dir }} -type f -maxdepth 1  \( -iname  "*htaccess" ! -path "wp-content-mount/.htaccess"  \) -exec chmod -c {{ mode_0640 }} {} \;
+
+- name: WPconfig file permission
+  command: find {{ wordpress_homedir }} -type f  -name "wp-config.php" -exec chmod -c {{ mode_0440 }} {} \;
+
+
+
