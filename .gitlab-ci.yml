@@ -25,7 +25,6 @@
 
 stages:
   - build
-  - tag
 
 default:
   image: "${CI_REGISTRY_IMAGE}/${KANIKO_BUILD_IMAGENAME}:${CI_COMMIT_REF_SLUG}"
@@ -36,17 +35,15 @@ build-wp-cli:
     KANIKO_BUILD_IMAGENAME: wordpress-cli-ansible
     KANIKO_CONTEXT: wp-cli-docker
   extends: .kaniko_build
-  tags:
-    - docker
   # Run this job if files have changed that are used when building the docker
   # image, or when the commit is a tag.
   rules:
-  - changes:
-    - wp-cli-docker/**/**/*
-    - .gitlab-ci.yml
-    when: on_success
-  - if: '$CI_COMMIT_TAG'
-    when: on_success
+    - changes:
+        - wp-cli-docker/**/**/*
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_COMMIT_TAG'
+      when: on_success
 
 build-wp:
   stage: build
@@ -54,14 +51,12 @@ build-wp:
     KANIKO_BUILD_IMAGENAME: wordpress
     KANIKO_CONTEXT: wp-docker
   extends: .kaniko_build
-  tags:
-    - docker
   # Run this job if files have changed that are used when building the docker
   # image, or when the commit is a tag.
   rules:
-  - changes:
-    - wp-docker/**
-    - .gitlab-ci.yml
-    when: on_success
-  - if: '$CI_COMMIT_TAG'
-    when: on_success
+    - changes:
+        - wp-docker/**
+        - .gitlab-ci.yml
+      when: on_success
+    - if: '$CI_COMMIT_TAG'
+      when: on_success
