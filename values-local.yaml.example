@@ -42,6 +42,10 @@ wordpress:
     alt_enabled: false
     # alt_config: PATH-SETTING-IN-OPTIONS-TABLE
     # alt_path: SOME-LOGIN-PATH
+    # # Path used by the liveness and readiness probes to see if the site runs
+    # # correctly. Defaults to `/wp-login.php`. Be sure to make this the same as
+    # # alt_path if you use it!
+    # probe_path: /wp-login.php
   wp_content:
     # The directory to mount the files placed in wp-content. You shouldn't have to
     # change this.

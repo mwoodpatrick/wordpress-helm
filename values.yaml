@@ -1,3 +1,4 @@
+---
 git_repo:
   enabled: false
   name: /my/repo
@@ -81,20 +82,24 @@ wordpress:
     multilingual:
       enabled: false
       plugins: []
-      config: []      
+      config: []
     # NOTE: Use a theme *slug* here
     theme: twentytwenty
     theme_fallback: twentytwenty
     # NOTE: Make sure you use underscore and that the localisation is in full caps
     locale: en_US
-    version: 5.2.3
+    version: 5.4.1
     url: "http://localhost"
     title: "Wordpress Helm"
-    ## If including a plugin to alias wp login then set an alt_path and set the alt_config 
-    # NOTE: A value for alt_enabled must be set. Select either true or false
-    alt_enabled: false 
+    # If including a plugin to alias wp login then set an alt_path and set the
+    # alt_config
+    alt_enabled: false
     # alt_config: PATH-SETTING-IN-OPTIONS-TABLE
     # alt_path: SOME-LOGIN-PATH
+    # Path used by the liveness and readiness probes to see if the site runs
+    # correctly.
+    probe_path: /wp-login.php
+
   wp_content:
     ## The directory to mount the files placed in wp-content. You shouldn't have to
     ## change this.
@@ -167,12 +172,12 @@ wpSalts: {}
 
 image:
   repository: docker.greenhost.net/open/wordpress-helm/wordpress
-  tag: 0.1.0
+  tag: 0.1.1
   pullPolicy: Always
 
 initImage:
   repository: docker.greenhost.net/open/wordpress-helm/wordpress-cli-ansible
-  tag: 0.1.0
+  tag: 0.1.1
   pullPolicy: Always
   imagePullSecretName: greenhost-registry-pull
 
@@ -189,6 +194,9 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+podAnnotations: {}
+
 database:
   db:
     user: wordpress
@@ -333,3 +341,22 @@ ansibleSecrets: |
     SECURE_AUTH_SALT: {{ .Values.wpSalts.SECURE_AUTH_SALT | default ( randAlphaNum 32) }}
     WP_CACHE_KEY_SALT: {{ .Values.wpSalts.WP_CACHE_KEY_SALT | default ( randAlphaNum 32) }}
     WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET | default ( randAlphaNum 32 ) }}
+
+## Liveness and readiness probe values
+## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+##
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 60
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1

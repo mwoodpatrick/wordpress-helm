@@ -1,8 +1,9 @@
+---
 apiVersion: v1
-appVersion: "5.2.3"
+appVersion: "5.4.1"
 description: WordPress with a replicated MariaDB backend
 name: wordpress
 # Please only change the chart version as part of the release procedure: see
 # RELEASING.md
-version: 0.1.0
+version: 0.1.2
 icon: https://make.wordpress.org/design/files/2016/09/WordPress-logotype-wmark.png
