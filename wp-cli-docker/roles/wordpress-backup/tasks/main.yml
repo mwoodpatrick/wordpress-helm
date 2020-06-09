@@ -1,0 +1,22 @@
+---
+
+- name: Get date
+  shell:
+    date '+%F'
+  register: date
+  changed_when: false
+
+- block:
+  - name: Create backups directory
+    file:
+      path: "{{ backup_dir }}"
+      state: directory
+  - name: Export WordPress database to file
+    shell:
+      wp {{ cli_args }} db export "{{ backup_dir }}/{{ backup_filename }}"
+    # Never overwrite an existing file.
+    args:
+      creates: "{{ backup_dir }}/{{ backup_filename }}"
+  vars:
+    backup_dir: "/mnt/backups/wp-db/{{ lookup('env', 'BACKUP_NAME') }}"
+    backup_filename: "wp-db-{{ lookup('env', 'BACKUP_NAME') }}-{{ date.stdout }}.sql"

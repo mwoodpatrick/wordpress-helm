@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wordpress.fullname" . }}-ansible-vars
+  labels:
+    app: {{ include "wordpress.name" . }}
+    chart: {{ include "wordpress.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  main.yml: |-
+    ---
+{{- range $key, $val := .Values.ansibleVars }}
+    {{ $key }}: {{ $val }}
+{{- end }}

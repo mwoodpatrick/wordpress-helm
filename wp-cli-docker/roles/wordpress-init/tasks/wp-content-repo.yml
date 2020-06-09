@@ -1,0 +1,16 @@
+
+- name: Make temporary git directory
+  tempfile:
+    state: directory
+  register: tempdir
+
+- name: Git checkout wp-content repo
+  git:
+    repo: "{{ WP_CONTENT_REPO_URL }}"
+    dest: "{{ tempdir.path }}"
+    version: "{{ WP_CONTENT_REPO_VERSION }}"
+    depth: 1
+
+- name: "Copy {{ tempdir.path }}/{{ WP_CONTENT_REPO_CONTENT_DIR }} contents to {{ WP_CONTENT_DIR }}"
+  # rsync files recursive, copy links
+  command: "rsync -rl {{ tempdir.path }}/{{ WP_CONTENT_REPO_CONTENT_DIR }}/ {{ WP_CONTENT_DIR }}"

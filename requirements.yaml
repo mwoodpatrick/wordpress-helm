@@ -1,0 +1,13 @@
+dependencies:
+  - name: mariadb
+    version: 7.3.16
+    repository: "@bitnami"
+    tags:
+      - mysql
+    alias: database
+  - name: redis
+    version: 10.5.14
+    repository: "@bitnami"
+    condition: redis.enabled
+    tags:
+      - redis

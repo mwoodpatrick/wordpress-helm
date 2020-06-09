@@ -1,0 +1,45 @@
+---
+
+## Set usable Wordpress permissions
+
+
+# Ensure there is a cache outside uploads
+- name: Add a wp-content cache directory
+  file:
+    path: "{{ wordpress_homedir }}/wp-content/cache"
+    mode: 0750
+    state: directory
+
+# Directories
+
+- name: Bulk directory ownership
+  command: find -L {{ wordpress_homedir }} -type d  -exec chown {{ wp_user }}:{{ wp_group }} {} \;
+
+- name: Bulk directory permissions
+  command: find -L  {{ wordpress_homedir }} -type d  -exec chmod -c {{ mode_0750 }} {} \;
+
+# Files 
+
+- name: Bulk file ownership
+  command: find -L  {{ wordpress_homedir }} -type f -not -name '{{ item }}'  -exec chown {{ wp_user }}:{{ wp_group }} {} \;
+  with_items: "{{ config_files }}"
+
+- name: Dot file ownership
+  command: find -L {{ wordpress_homedir }} -type f -maxdepth 1 -not -name '{{ item }}' -name '\.*' -exec chown {{ config_user }}:{{ config_group }} {} \;
+  with_items: "{{ config_files }}"
+
+- name: Config file ownership
+  command: find -L {{ wordpress_homedir }} -type f -name '{{ item }}'  -exec chown {{ config_user }}:{{ config_group }} {} \;
+  with_items: "{{ config_files }}"
+
+- name: Bulk file permissions 
+  command: find -L  {{ wordpress_homedir }} -type f -not -name '{{ item }}'  -exec chmod -c {{ mode_0640 }} {} \;
+  with_items: "{{ config_files }}"
+
+- name: Dot file permissions
+  command: find -L {{ wordpress_homedir }} -type f -maxdepth 1 -not -name '{{ item }}' -name '\.*'  -exec chmod -c {{ mode_0440 }} {} \;
+  with_items: "{{ config_files }}"
+
+- name: Config file permissions
+  command: find -L {{ wordpress_homedir }} -type f  -name '{{ item }}' -exec chmod -c {{ mode_0440 }} {} \;
+  with_items: "{{ config_files }}"

@@ -1,0 +1,4 @@
+- name: Back up WordPress
+  hosts: localhost
+  roles:
+    - wordpress-backup

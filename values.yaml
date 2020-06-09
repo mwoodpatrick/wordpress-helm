@@ -1,0 +1,358 @@
+git_repo:
+  enabled: false
+  name: /my/repo
+  url: gitlab.com
+  version: "HEAD"
+  token_user: token-here
+  token_key: key-here
+  wp_content_dir: "."
+
+# Default settings for OpenID Connect
+openid_connect_settings:
+  enabled: false
+  # Client ID must correspond to client id setting in OpenID provider
+  client_id: wordpress
+  # Show a buton for SSO on login form (alternative is "auto" for SSO autologin)
+  login_type: button
+  # User WP gets access to 
+  scope: email profile openid
+  identity_key: preferred_username
+  # Turn on to ignore SSL errors with OID providers (DON'T USE IN PRODUCTION!)
+  no_sslverify: "0"
+  # Timeout in seconds to wait for OID http requests
+  http_request_timeout: "5"
+  # Require users be logged in to see the site.
+  enforce_privacy: "0"
+  # Set to "1" to provide an alternative redirect route. Useful if your server
+  # is causing issues with the default admin-ajax method. You must flush rewrite
+  # rules after changing this setting. This can be done by saving the Permalinks
+  # settings page.
+  alternate_redirect_uri: "0"
+  # Where in the user claim array to find the user's nickname. Possible standard
+  # values: preferred_username, name, or sub.
+  nickname_key: "preferred_username"
+  # String from which the user's email address is built. Specify "{email}" as
+  # long as the user claim contains an email claim.
+  # This value is quoted twice, because otherwise the wp cli call interprets
+  # this as JSON instead of as a string.
+  email_format: "'{email}'"
+  # String from which the user's display name is built. 
+  # Example: "{given_name} {family_name}"
+  displayname_format: ""
+  # If "1", the user's identity will be determined by the user name instead of
+  # the email address.
+  identify_with_username: "0"
+  # State valid time in seconds.
+  state_time_limit: "180"
+  # If a WordPress account already exists with the same identity as a
+  # newly-authenticated user over OpenID Connect, login as that user instead of
+  # generating an error.
+  link_existing_users: "0"
+  # After a successful OpenID Connect authentication, this will redirect the
+  # user back to the page on which they clicked the OpenID Connect login button.
+  # This will cause the login process to proceed in a traditional WordPress
+  # fashion. For example, users logging in through the default wp-login.php page
+  # would end up on the WordPress Dashboard and users logging in through the
+  # WooCommerce "My Account" page would end up on their account page.
+  redirect_user_back: "0"
+  # When enabled, this will automatically redirect the user back to the
+  # WordPress login page if their access token has expired. 
+  redirect_on_logout: "1"
+  # Very simple log messages for debugging purposes.
+  enable_logging: "0"
+  log_limit: "1000"
+  # # Arbitrary secret key the server expects from this client.
+  # client_secret: REPLACE_THIS
+  # endpoint_login: https://sso.example.com/oauth2/auth
+  # endpoint_userinfo: https://sso.example.com/oauth2/userinfo
+  # endpoint_token: https://sso.example.com/oauth2/token
+  # endpoint_end_session: https://sso.example.com/logout
+
+
+wordpress:
+  config:
+    db:
+      prefix: wp_
+    adm:
+      usid: admin
+      pssw: CHANGE-THIS-PASSWORD
+      email: mail@example.com
+  site:
+    multilingual:
+      enabled: false
+      plugins: []
+      config: []      
+    # NOTE: Use a theme *slug* here
+    theme: twentytwenty
+    theme_fallback: twentytwenty
+    # NOTE: Make sure you use underscore and that the localisation is in full caps
+    locale: en_US
+    version: 5.4.1
+    url: "http://localhost"
+    title: "Wordpress Helm"
+    ## If including a plugin to alias wp login then set an alt_path and set the alt_config 
+    # NOTE: A value for alt_enabled must be set. Select either true or false
+    alt_enabled: false
+    # alt_config: PATH-SETTING-IN-OPTIONS-TABLE
+    # alt_path: SOME-LOGIN-PATH
+    # Path used by the liveness and readiness probes to see if the site runs
+    # correctly. Defaults to `/wp-login.php`
+    probe_path: /wp-login.php
+  wp_content:
+    ## The directory to mount the files placed in wp-content. You shouldn't have to
+    ## change this.
+    mount_path: /var/www/wp-content-mount
+  wp_upload:
+    ## The directory to mount the files placed in wp-content/uploads. You shouldn't
+    ## have to change this.
+    mount_path: /var/www/wp-uploads-mount
+    ## Contents of the .htaccess file that is mounted in the `wpUploadMnt` directory
+    htaccess: |
+      ## Disable access to all file types except the following
+      Require all denied
+      <Files ~ ".(xml|css|js|jpe?g|png|gif)$">
+        Require all granted
+      </Files>  
+
+  ## Detailed list of mu values and plugins with versions
+  ## mu_plugins_dir  'mu-plugins' maps to wp-content/mu-plugins
+  ## mu_plugins are installed as hidden and cannot be updated from the UI
+  # NOTE:  A value for mu_plugins_enabled must be set. Use either true or false
+  mu_plugins_enabled: false
+  mu_plugins_dir: mu-plugins
+  # See values-local.yaml.example for an example value
+  mu_plugins: {}
+
+  ## Enable externally triggered cron if a cron plugin is installed
+  # NOTE: A value for mu_cron_enabled must be set. Use either true or false
+  mu_cron_enabled: false
+  # See values-local.yaml.example for an example value
+  mu_cron: {}
+
+persistence:
+  ## Enable the use of a persistent volume
+  enabled: true
+  size: 1Gi
+  accessMode: ReadWriteOnce
+  # storageClass:
+  # existingClaim:
+
+service:
+  type: ClusterIP
+  port: 8080
+
+
+## Dictionary with variables that are inserted into the wordpress-init default
+## task. Feel free to override these if necessary
+ansibleVars:
+  wordpress_homedir: /var/www/html
+  wp_user: www-data
+  wp_group: www-data
+  config_user: nobody
+  config_group: nogroup
+  dbcharset: utf8mb4
+  dbcollate: utf8mb4_unicode_ci
+  cli_args: "--path={{ wordpress_homedir }}"
+
+  ## Perms
+  mode_0750: u+rwx-s,g+rx-ws,o-rwx
+  mode_0640: u+rw-sx,g+r-wxs,o-rwx
+  mode_0644: u+rw-sx,g+r-wxs,o+r-wx
+  mode_0440: u+r-wxs,u+r-wxs,o-rwx
+  mode_0600: u+rw-xs,g-rwxs,o-rwx
+
+  config_files: "[wp-config.php, .htaccess]"
+
+  ## Plugins
+  wordpress_default_plugins: "[classic-editor]"
+
+wpSalts: {}
+
+image:
+  repository: docker.greenhost.net/open/wordpress-helm/wordpress
+  tag: 0.1.1
+  pullPolicy: Always
+
+initImage:
+  repository: docker.greenhost.net/open/wordpress-helm/wordpress-cli-ansible
+  tag: 0.1.1
+  pullPolicy: Always
+  imagePullSecretName: greenhost-registry-pull
+
+ingress:
+  enabled: false
+  annotations:
+    # kubernetes.io/tls-acme: "true"
+  path: /
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations: {}
+
+database:
+  db:
+    user: wordpress
+    password: CHANGE-THIS-PASSWORD
+    name: wordpress_db
+  replication:
+    enabled: true
+  master:
+    persistence:
+      size: 4Gi
+    config: |-
+      [mysqld]
+      skip-name-resolve
+      explicit_defaults_for_timestamp
+      basedir=/opt/bitnami/mariadb
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      tmpdir=/opt/bitnami/mariadb/tmp
+      max_allowed_packet=16M
+      bind-address=0.0.0.0
+      pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+      log-error=/opt/bitnami/mariadb/logs/mysqld.log
+      character-set-server=utf8mb4
+      collation-server=utf8mb4_unicode_ci
+      [client]
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      default-character-set=utf8mb4
+      [manager]
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+  slave:
+    persistence:
+      size: 4Gi
+    config: |-
+      [mysqld]
+      skip-name-resolve
+      explicit_defaults_for_timestamp
+      basedir=/opt/bitnami/mariadb
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      tmpdir=/opt/bitnami/mariadb/tmp
+      max_allowed_packet=16M
+      bind-address=0.0.0.0
+      pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+      log-error=/opt/bitnami/mariadb/logs/mysqld.log
+      character-set-server=utf8mb4
+      collation-server=utf8mb4_unicode_ci
+      [client]
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+      default-character-set=utf8mb4
+      [manager]
+      port=3306
+      socket=/opt/bitnami/mariadb/tmp/mysql.sock
+
+redis:
+  # Set this to true to have a Redis container next to your WP. The WP will be
+  # configured to connect to this Redis and `Redis Object Cache` plugin will be
+  # installed
+  enabled: false
+  cluster:
+    # Set to true to have a master and a slave redis. Not necessary for caching
+    enabled: false
+
+backup:
+  enabled: false
+
+# Some of the variables configured above are put into a variable here, that's
+# completely stored as a b64encoded secret in Kubernetes. If you're not a
+# developer, never change this variable, only change the variables it points to.
+ansibleSecrets: |
+  DB_HOST: {{ .Release.Name }}-database
+  DB_NAME: {{ .Values.database.db.name }}
+  DB_PASS: {{ .Values.database.db.password }}
+  DB_PREFIX: {{ .Values.wordpress.config.db.prefix}}
+  DB_USER: {{ .Values.database.db.user }}
+  LOCALE: {{ .Values.wordpress.site.locale }}
+  WP_CONTENT_DIR: {{ .Values.wordpress.wp_content.mount_path }}
+  WP_CONTENT_REPO_CONTENT_DIR: {{ .Values.git_repo.wp_content_dir }}
+  WP_CONTENT_REPO_ENABLED: {{ .Values.git_repo.enabled }}
+  WP_CONTENT_REPO_URL: https://{{ .Values.git_repo.token_user }}:{{ .Values.git_repo.token_key }}@{{ .Values.git_repo.url }}{{ .Values.git_repo.name }}
+  WP_CONTENT_REPO_VERSION: {{ .Values.git_repo.version }}
+  WP_EMAIL: {{ .Values.wordpress.config.adm.email }}
+  WP_PASS: {{ .Values.wordpress.config.adm.pssw }}
+  WP_REDIS_ENABLED: {{ .Values.redis.enabled }}
+  WP_REDIS_HOST: {{ .Release.Name }}-redis-master
+  WP_REDIS_PASSWORD: {{ .Values.redis.password | default ( randAlphaNum 15 ) }}
+  WP_THEME: {{ .Values.wordpress.site.theme }}
+  WP_THEME_FALLBACK: {{ .Values.wordpress.site.theme_fallback }}
+  WP_TITLE: {{ .Values.wordpress.site.title }}
+  WP_UPLOAD_DIR: {{ .Values.wordpress.wp_upload.mount_path }}
+  WP_URL: {{ .Values.wordpress.site.url }}
+  WP_USER: {{ .Values.wordpress.config.adm.usid }}
+  WP_VERSION: {{ .Values.wordpress.site.version }}
+  WP_ALT_ENABLED: {{ .Values.wordpress.site.alt_enabled }}
+  WP_ALT_CONFIG: {{ .Values.wordpress.site.alt_config }}
+  WP_ALT_PATH: {{ .Values.wordpress.site.alt_path }}
+  WP_MU_PLUGINS_ENABLED: {{ .Values.wordpress.mu_plugins_enabled }}
+  WP_MU_PLUGINS_DIR: {{ .Values.wordpress.mu_plugins_dir }}
+  WP_MU_PLUGINS: {{ .Values.wordpress.mu_plugins | toJson }}
+  WP_MU_CRON_ENABLED: {{ .Values.wordpress.mu_cron_enabled }}
+  WP_MU_CRON_SETTINGS: {{ .Values.wordpress.mu_cron | toJson }}
+  WP_MULTILINGUAL_ENABLED: {{ .Values.wordpress.site.multilingual.enabled }}
+  WP_MULTILINGUAL_PLUGINS: {{ .Values.wordpress.site.multilingual.plugins }}
+  WP_MULTILINGUAL_CONFIG: {{ quote .Values.wordpress.site.multilingual.config }}
+  WP_OPENID_CONNECT_ENABLED: {{ .Values.openid_connect_settings.enabled }}
+  WP_OPENID_CONNECT_SETTINGS:
+    alternate_redirect_uri: {{ .Values.openid_connect_settings.alternate_redirect_uri }}
+    client_id: {{ .Values.openid_connect_settings.client_id }}
+    client_secret: {{ .Values.openid_connect_settings.client_secret }}
+    displayname_format: {{ .Values.openid_connect_settings.displayname_format }}
+    email_format: {{ .Values.openid_connect_settings.email_format }}
+    enable_logging: {{ .Values.openid_connect_settings.enable_logging }}
+    endpoint_end_session: {{ .Values.openid_connect_settings.endpoint_end_session }}
+    endpoint_login: {{ .Values.openid_connect_settings.endpoint_login }}
+    endpoint_token: {{ .Values.openid_connect_settings.endpoint_token }}
+    endpoint_userinfo: {{ .Values.openid_connect_settings.endpoint_userinfo }}
+    enforce_privacy: {{ .Values.openid_connect_settings.enforce_privacy }}
+    http_request_timeout: {{ .Values.openid_connect_settings.http_request_timeout }}
+    identify_with_username: {{ .Values.openid_connect_settings.identify_with_username }}
+    identity_key: {{ .Values.openid_connect_settings.identity_key }}
+    link_existing_users: {{ .Values.openid_connect_settings.link_existing_users }}
+    login_type: {{ .Values.openid_connect_settings.login_type }}
+    log_limit: {{ .Values.openid_connect_settings.log_limit }}
+    nickname_key: {{ .Values.openid_connect_settings.nickname_key }}
+    no_sslverify: {{ .Values.openid_connect_settings.no_sslverify }}
+    redirect_on_logout: {{ .Values.openid_connect_settings.redirect_on_logout }}
+    redirect_user_back: {{ .Values.openid_connect_settings.redirect_user_back }}
+    scope: {{ .Values.openid_connect_settings.scope }}
+    state_time_limit: {{ .Values.openid_connect_settings.state_time_limit }}
+  WP_SALTS:
+    AUTH_KEY: {{ .Values.wpSalts.AUTH_KEY | default ( randAlphaNum 32) }}
+    AUTH_SALT: {{ .Values.wpSalts.AUTH_SALT | default ( randAlphaNum 32) }}
+    LOGGED_IN_KEY: {{ .Values.wpSalts.LOGGED_IN_KEY | default ( randAlphaNum 32) }}
+    LOGGED_IN_SALT: {{ .Values.wpSalts.LOGGED_IN_SALT | default ( randAlphaNum 32) }}
+    NONCE_KEY: {{ .Values.wpSalts.NONCE_KEY | default ( randAlphaNum 32) }}
+    NONCE_SALT: {{ .Values.wpSalts.NONCE_SALT | default ( randAlphaNum 32) }}
+    SECURE_AUTH_KEY: {{ .Values.wpSalts.SECURE_AUTH_KEY | default ( randAlphaNum 32) }}
+    SECURE_AUTH_SALT: {{ .Values.wpSalts.SECURE_AUTH_SALT | default ( randAlphaNum 32) }}
+    WP_CACHE_KEY_SALT: {{ .Values.wpSalts.WP_CACHE_KEY_SALT | default ( randAlphaNum 32) }}
+    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET | default ( randAlphaNum 32 ) }}
+
+## Liveness and readiness probe values
+## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+##
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 60
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1

@@ -1,0 +1,5 @@
+*.swp
+charts
+values-*.yaml
+install*.sh
+/data/

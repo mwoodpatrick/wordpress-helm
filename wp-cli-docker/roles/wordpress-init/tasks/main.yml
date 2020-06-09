@@ -1,0 +1,147 @@
+---
+
+- name: Add wp content symlink
+  file:
+    src: "{{ WP_CONTENT_DIR }}"
+    path: "{{ wordpress_homedir }}/wp-content"
+    state: link
+  when: WP_CONTENT_DIR != wordpress_homedir + "/wp-content"
+
+- import_tasks: wp-content-repo.yml
+  when: WP_CONTENT_REPO_ENABLED
+
+- name: Add uploads symlink
+  file:
+    src: "{{ WP_UPLOAD_DIR }}"
+    path: "{{ wordpress_homedir }}/wp-content/uploads"
+    state: link
+    # Force this, because the WP UPLOAD DIR is not mounted to the initContainer
+    force: yes
+  when: WP_UPLOAD_DIR != wordpress_homedir + "/wp-content/uploads"
+
+- name: Download WordPress
+  shell: wp {{ cli_args }} core download
+          --locale="{{ LOCALE }}"
+          --version="{{ WP_VERSION }}"
+          --skip-content --force
+
+- name: Checksum WordPress
+  shell: wp {{ cli_args }} core verify-checksums
+  register: checksum
+
+- name: Fail if checksum is invalid
+  fail:
+    msg: "Wordpress Core failed checksums"
+  when: checksum is failed
+
+
+- name: Create wp-config from zero
+  shell:
+    wp {{ cli_args }} config create
+          --dbname="{{ DB_NAME }}"
+          --dbuser="{{ DB_USER }}"
+          --dbpass="{{ DB_PASS }}"
+          --dbhost="{{ DB_HOST }}"
+          --dbprefix="{{ DB_PREFIX }}"
+          --locale="{{ LOCALE }}"
+          --dbcharset="{{ dbcharset }}"
+          --dbcollate="{{ dbcollate }}"
+          --skip-check
+          --force
+          --extra-php
+  args:
+    stdin: |
+      /** Set HTTPS on for requests forwarded by the ingress **/
+      if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+        $_SERVER['HTTPS'] = 'on';
+      if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])){
+        $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+      }
+
+      {% if WP_REDIS_ENABLED %}
+      // Configures the redis plugin that is installed by redis.yml
+      $redis_server = array(
+        'host'     => '{{ WP_REDIS_HOST }}',
+        'port'     => 6379,
+        'auth'     => '{{ WP_REDIS_PASSWORD }}',
+        'database' => 0,
+      );
+      {% endif %}
+
+- name: Install WordPress tables & add admin user
+  shell: wp {{ cli_args }} core install
+            --url="{{ WP_URL }}"
+            --title="{{ WP_TITLE }}"
+            --admin_user="{{ WP_USER }}"
+            --admin_password="{{ WP_PASS }}"
+            --admin_email="{{ WP_EMAIL }}"
+
+- name: Users can update plugins from dashboard
+  shell: wp {{ cli_args }} config set FS_METHOD direct --add --type=constant
+
+- name: Files cannot be edited
+  shell: wp {{ cli_args }} config set DISALLOW_FILE_EDIT true --add --raw --type=constant
+
+- name: Add WordPress language
+  shell: wp {{ cli_args }} core language install "{{ LOCALE }}" --activate
+
+- name: Set key and salt values
+  shell: wp config {{ cli_args }} set {{ item.key }} {{ item.value }} --add --type=constant
+  with_dict: "{{ WP_SALTS }}"
+
+- name: Copy htaccess config file
+  template:
+    src: templates/htaccess
+    dest: "{{ wordpress_homedir }}/.htaccess"
+
+
+- name: Comment close options
+  shell: wp {{ cli_args }} option set close_comments_days_old 90
+
+- name: Better comment link options
+  shell: wp {{ cli_args }} option set comment_max_links 1
+
+- name: Block anon options
+  shell: wp {{ cli_args }} option set users_can_register 0
+
+- name: Block pings
+  shell: wp {{ cli_args }} option set default_ping_status closed
+
+# Theme
+- name: Theme activate block
+  block:
+    - debug:
+        msg: "Trying the configured theme - {{ WP_THEME }}"
+    - name: Activate theme if exists in wp-content-repo 
+      shell: wp {{ cli_args }} theme activate "{{ WP_THEME }}"
+    - debug:
+        msg: 'Success'
+  rescue:
+    - debug:
+        msg: 'Local theme does not exist or error'
+    - name: Pull the default theme set in values.yaml and then activate
+      shell: wp {{ cli_args }} theme install "{{ WP_THEME_FALLBACK }}" --activate 
+    - debug:
+        msg: "Fallback theme {{ WP_THEME_FALLBACK }} has been installed"
+
+# Plugins
+- name: Install WordPress plugins that are activated
+  shell: wp {{ cli_args }} plugin install "{{ item }}" --force --activate
+  with_items: "{{ wordpress_default_plugins }}"
+
+# Option for an alt login - when an alt_path is set and an alt_config exists  
+- name: Set alt path
+  shell: wp {{ cli_args }} option set {{ WP_ALT_CONFIG }}  {{ WP_ALT_PATH }}
+  when: WP_ALT_ENABLED
+
+- import_tasks: mu-plugins-cron.yml
+  when: WP_MU_PLUGINS_ENABLED
+  
+- import_tasks: redis.yml
+  when: WP_REDIS_ENABLED
+
+- import_tasks: openid-connect.yml
+  when: WP_OPENID_CONNECT_ENABLED
+
+- import_tasks: multilingual.yml
+  when: WP_MULTILINGUAL_ENABLED

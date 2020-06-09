@@ -1,0 +1,5 @@
+- name: Install WordPress
+  hosts: localhost
+  roles:
+    - wordpress-init
+    - wordpress-permissions

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wordpress.fullname" . }}-htuploads
+  labels:
+    app: {{ include "wordpress.name" . }}
+    chart: {{ include "wordpress.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  .htaccess: |
+{{ .Values.wordpress.wp_upload.htaccess | indent 4 }}

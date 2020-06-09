@@ -1,0 +1,69 @@
+# BEGIN WordPress
+
+## Block version sniffing
+<files readme.html>
+     Order allow,deny
+     Deny from all
+     Require all denied
+</files>
+
+## Username enumeration
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{QUERY_STRING} ^author= [NC]
+RewriteRule .* - [F,L]
+RewriteRule ^author/ - [F,L]
+</IfModule>
+
+## Deny all txt except robots http://serverfault.com/a/622337
+<IfModule mod_rewrite.c>
+RewriteCond %{REQUEST_URI} !/robots\.txt$ [nocase]
+RewriteRule \.txt$  -  [forbidden,last]
+</IfModule>
+
+## Protect htaccess and inifiles
+<FilesMatch "^.*(error_log|wp-config.php|php.ini|\.[hH][tT][aApP].*)$">
+Order deny,allow
+Deny from all
+</FilesMatch>
+
+## Bot filter
+<IfModule mod_rewrite.c>
+RewriteCond %{HTTP_USER_AGENT} ^.*(Baiduspider|LivelapBot|rendiction|360Spider|Sogou|Sosospider|Yandex|NaverBot|Yeti|moget|ichiro|RedBot|metauri|LABLEBot|ysearch|MJ12bot|AhrefsBot|SemrushBot|Cliqzbot|linkfluence|xovibot).*$ [NC]
+RewriteRule ^ - [R=403,L]
+</IfModule>
+
+## Miners
+<IfModule mod_rewrite.c>
+RewriteCond %{REQUEST_URI} ^.*(monero|mine_).*$ [NC]
+RewriteRule ^ - [R=403,L]
+</IfModule>
+
+## Spamdexing referrers
+<IfModule mod_rewrite.c>
+RewriteCond %{HTTP_REFERER} site\.ru [NC]
+RewriteRule ^(.*)$ - [L,R=403]
+</IfModule>
+
+## Injections and probing placeholder
+
+## Block WordPress xmlrpc.php requests
+<Files xmlrpc.php>
+order deny,allow
+deny from all
+</Files>
+
+# No directory listings
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+
+# END WordPress

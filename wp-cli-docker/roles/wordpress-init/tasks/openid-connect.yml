@@ -1,0 +1,7 @@
+---
+
+- name: Install openid connect plugin
+  shell: wp {{ cli_args }} plugin install daggerhart-openid-connect-generic --activate
+
+- name: Set openid connect plugin options
+  command: wp {{ cli_args }} option set openid_connect_generic_settings --format=json '{{ WP_OPENID_CONNECT_SETTINGS | tojson }}'

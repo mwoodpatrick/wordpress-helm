@@ -1,0 +1,67 @@
+---
+
+# WP Configuration for MU
+
+- name:  Set content directory variable in wp-config
+  shell: wp {{ cli_args }} config set  'WP_CONTENT_DIR'  "ABSPATH . 'wp-content'"   --raw --type=constant
+
+- name:  Set MU plugins directory in wp-config
+  shell: wp {{ cli_args }} config set  'WPMU_PLUGIN_DIR' "WP_CONTENT_DIR . '/{{ WP_MU_PLUGINS_DIR }}'"   --raw --type=constant
+
+
+# MU plugins directory and loader
+
+- name: Add a MU plugins directory when WP_MU_PLUGINS_DIR is set
+  file:
+    path: "{{ wordpress_homedir }}/wp-content/{{ WP_MU_PLUGINS_DIR }}"
+    mode: 0750
+    state: directory
+
+- name: Add MU plugins load.php file
+  file:
+    path: "{{ wordpress_homedir }}/wp-content/{{ WP_MU_PLUGINS_DIR }}/load.php"
+    mode: 0640
+
+- name: Insert the base code into MU plugins load.php file
+  lineinfile:
+    dest: "{{ wordpress_homedir }}/wp-content/{{ WP_MU_PLUGINS_DIR }}/load.php"
+    line: "<?php // {{ WP_MU_PLUGINS_DIR }}/load.php"
+
+
+### Install plugins then move them to the MU plugins folder
+
+- name: Install plugins before they are MU
+  shell: wp {{ cli_args }} plugin install {{ item.key }} --version={{ item.value.version}} --force
+  loop: "{{ WP_MU_PLUGINS | dict2items }}"
+
+- name: Move all the plugins to the mu-plugins folder where they are activated by default
+  command: mv {{ wordpress_homedir }}/wp-content/plugins/{{ item.key }} {{ wordpress_homedir }}/wp-content/{{ WP_MU_PLUGINS_DIR }}/{{ item.key }}
+  with_items: "{{ WP_MU_PLUGINS | dict2items }}"
+
+- name: Echo all the MU plugins filenames into the load.php file
+  lineinfile:
+    dest: "{{ wordpress_homedir }}/wp-content/{{ WP_MU_PLUGINS_DIR }}/load.php"
+    line: "require(WPMU_PLUGIN_DIR . '/{{ item.key }}/{{ item.value.phpfile }}');"
+    insertbefore: EOF
+  with_items: "{{ WP_MU_PLUGINS | dict2items }}"
+
+### Install wp-cron as mu 
+
+- name: Shallow clone from the github repository
+  git:
+    repo: "{{ WP_MU_CRON_SETTINGS.repo}}"
+    dest: "{{ wordpress_homedir }}/wp-content/{{ WP_MU_PLUGINS_DIR }}/{{ WP_MU_CRON_SETTINGS.slug }}"
+    depth: 1
+    version: "{{ WP_MU_CRON_SETTINGS.version}}"
+  when: WP_MU_CRON_ENABLED
+
+- name: Append cron control plugin filename to the load.php file
+  lineinfile:
+    dest: "{{ wordpress_homedir }}/wp-content/{{ WP_MU_PLUGINS_DIR }}/load.php"
+    line: "require(WPMU_PLUGIN_DIR . '/{{ WP_MU_CRON_SETTINGS.slug }}/{{ WP_MU_CRON_SETTINGS.phpfile}}');"
+    insertbefore: EOF
+  when: WP_MU_CRON_ENABLED
+
+- name: Switch off wordpress native cron
+  shell: wp {{ cli_args }} config set  'DISABLE_WP_CRON'  'true'  --type=constant
+  when: WP_MU_CRON_ENABLED

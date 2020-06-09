@@ -1,0 +1,213 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "wordpress.fullname" . }}
+  labels:
+    app: {{ include "wordpress.name" . }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "wordpress.name" . }}
+      release: {{ .Release.Name }}
+  serviceName: {{ include "wordpress.fullname" . }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "wordpress.name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        # Reload the pod when values-local.yaml changes, so the ansible playbook
+        # gets re-run.
+        checksum/config: {{ include (print $.Template.BasePath "/ansible-vars.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+        {{- if .Values.podAnnotations }}
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.initImage.imagePullSecretName }}
+      initContainers:
+        - name: init-{{ .Chart.Name }}
+          image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+          imagePullPolicy: {{ .Values.initImage.pullPolicy }}
+          # command: ['sh', '-c', '/usr/local/bin/wp --info > /var/www/html/wp-info.txt & echo "sleeping now" && sleep 600']
+          # The WP Apache container runs Debian, which has a different UID for
+          # the www-data user than this Alpine container, so use that ID instead
+          securityContext:
+            runAsUser: 33
+            runAsGroup: 33
+          volumeMounts:
+            - name: {{ include "wordpress.name" . }}-wp-storage
+              mountPath: /var/www/html
+            - name: {{ include "wordpress.name" . }}-wp-content
+              mountPath: {{ .Values.wordpress.wp_content.mount_path }}
+            - name: ansible-vars
+              mountPath: /var/local/ansible/roles/wordpress-init/defaults/main.yml
+              subPath: main.yml
+            - name: ansible-secrets
+              mountPath: /var/local/ansible/secrets
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: {{ .Release.Name }}-database
+            - name: WORDPRESS_DB_USER
+              value: {{ .Values.database.db.user }}
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-database
+                  key: mariadb-password
+            - name: WORDPRESS_DB_NAME
+              value: {{ .Values.database.db.name }}
+            - name: WORDPRESS_TABLE_PREFIX
+              value: {{ .Values.wordPressTablePrefix }}
+            # TODO: Remove this debug
+            - name: WORDPRESS_DEBUG
+              value: "true"
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+            - name: https
+              containerPort: 443
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.wordpress.site.probe_path }}
+              port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.wordpress.site.probe_path }}
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          {{- end }}
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: {{ .Release.Name }}-database
+            - name: WORDPRESS_DB_USER
+              value: {{ .Values.database.db.user }}
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-database
+                  key: mariadb-password
+            - name: WORDPRESS_DB_NAME
+              value: {{ .Values.database.db.name }}
+            - name: WORDPRESS_TABLE_PREFIX
+              value: {{ .Values.wordPressTablePrefix }}
+            # TODO: Remove this debug
+            - name: WORDPRESS_DEBUG
+              value: "true"
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: apache
+          volumeMounts:
+            - name: {{ include "wordpress.name" . }}-wp-storage
+              mountPath: /var/www/html
+            - name: {{ include "wordpress.name" . }}-wp-content
+              mountPath: {{ .Values.wordpress.wp_content.mount_path }}
+            - name: {{ include "wordpress.name" . }}-wp-uploads
+              mountPath: {{ .Values.wordpress.wp_upload.mount_path }}
+            - name: htuploads
+              mountPath: {{ .Values.wordpress.wp_upload.mount_path }}/.htaccess
+              subPath: .htaccess
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+        {{- if .Values.backup.enabled }}
+        - name: {{ .Chart.Name }}-backup
+          image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+          imagePullPolicy: {{ .Values.initImage.pullPolicy }}
+          command:
+            - "/var/local/ansible/scripts/backup.sh"
+          securityContext:
+            runAsUser: 33
+            runAsGroup: 33
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: {{ .Release.Name }}-database
+            - name: WORDPRESS_DB_USER
+              value: {{ .Values.database.db.user }}
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-database
+                  key: mariadb-password
+            - name: WORDPRESS_DB_NAME
+              value: {{ .Values.database.db.name }}
+            - name: WORDPRESS_TABLE_PREFIX
+              value: {{ .Values.wordPressTablePrefix }}
+            - name: BACKUP_NAME
+              value: {{ .Release.Name }}
+          volumeMounts:
+            - name: {{ include "wordpress.name" . }}-wp-storage
+              mountPath: /var/www/html
+            - name: {{ include "wordpress.name" . }}-wp-content
+              mountPath: {{ .Values.wordpress.wp_content.mount_path }}
+            - name: {{ include "wordpress.name" . }}-wp-uploads
+              mountPath: {{ .Values.wordpress.wp_upload.mount_path }}
+            - name: ansible-vars
+              mountPath: /var/local/ansible/roles/wordpress-backup/defaults/main.yml
+              subPath: main.yml
+            - name: ansible-secrets
+              mountPath: /var/local/ansible/secrets
+            - name: {{ include "wordpress.name" . }}-backups
+              mountPath: /mnt/backups
+        {{- end }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      volumes:
+        - name: {{ include "wordpress.name" . }}-wp-storage
+          emptyDir: {}
+        - name: {{ include "wordpress.name" . }}-wp-content
+          emptyDir: {}
+        - name: {{ include "wordpress.name" . }}-wp-uploads
+        {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ if .Values.persistence.existingClaim }}{{ .Values.persistence.existingClaim }}{{- else }}{{ template "wordpress.fullname" . }}-wp-uploads{{- end }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        - name: ansible-secrets
+          secret:
+            secretName: {{ include "wordpress.fullname" . }}-ansible-secrets
+            # TODO: this might not be necessary
+            items:
+              - key: secret-vars.yaml
+                path: secret-vars.yaml
+        - name: ansible-vars
+          configMap:
+            name: {{ include "wordpress.fullname" . }}-ansible-vars
+        - name: htuploads
+          configMap:
+            name: {{ include "wordpress.fullname" . }}-htuploads
+        {{- if .Values.backup.enabled }}
+        - name: {{ include "wordpress.name" . }}-backups
+          persistentVolumeClaim:
+            claimName: {{ .Values.backup.pvcName }}
+        {{- end }}
