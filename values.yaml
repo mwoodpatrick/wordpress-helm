@@ -169,15 +169,14 @@ ansibleVars:
 wpSalts: {}
 
 image:
-  repository: docker.greenhost.net/open/wordpress-helm/wordpress
+  repository: open.greenhost.net:4567/open/wordpress-helm/wordpress
   tag: 0.1.1
   pullPolicy: Always
 
 initImage:
-  repository: docker.greenhost.net/open/wordpress-helm/wordpress-cli-ansible
+  repository: open.greenhost.net:4567/open/wordpress-helm/wordpress-cli-ansible
   tag: 0.1.1
   pullPolicy: Always
-  imagePullSecretName: greenhost-registry-pull
 
 ingress:
   enabled: false
