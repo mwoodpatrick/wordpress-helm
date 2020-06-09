@@ -1,4 +1,5 @@
 ---
+## Changes to wordpress config
 
 - name: Set redis host
   shell: wp {{ cli_args }} config set WP_REDIS_HOST "{{ WP_REDIS_HOST }}" --add --type=constant
@@ -7,7 +8,8 @@
   shell: wp {{ cli_args }} config set WP_REDIS_PASSWORD "{{ WP_REDIS_PASSWORD }}" --add --type=constant
 
 - name: Install redis-cache WordPress plugin
-  shell: wp {{ cli_args }} plugin install wp-redis --activate
+  shell: wp {{ cli_args }} plugin install redis-cache --activate
 
 - name: Enable redis object cache
   shell: wp {{ cli_args }} redis enable
+
