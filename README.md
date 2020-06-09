@@ -146,7 +146,7 @@ You might have to edit the following variables to reflect your current site's:
 - Set `DB_PREFIX` to the database prefix that your current WordPress uses
 - Set `WP_VERSION` to the version of your current WordPress site.
 - Check if your current WordPress uses Redis. This is usually the case when you
-  have the `wp-redis` plugin installed. If so, enable redis in your
+  have the `redis-cache` plugin installed. If so, enable redis in your
   `values-local.yaml` by setting `redis.enabled` to `true`.
 
 After installing, check if your site is available at the URL you specified in

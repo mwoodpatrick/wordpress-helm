@@ -34,6 +34,18 @@
     msg: "Wordpress Core failed checksums"
   when: checksum is failed
 
+- name: Check if wp-config exists
+  stat:
+    path: "{{ wordpress_homedir }}/wp-config.php"
+  register: config
+
+- name: Prepare wp-config permissions if it exists
+  file:
+    path: "{{ wordpress_homedir }}/wp-config.php"
+    owner: "{{ wp_user }}"
+    group: "{{ wp_group }}"
+  ignore_errors: true
+  when: config.stat.exists
 
 - name: Create wp-config from zero
   shell:
@@ -86,8 +98,10 @@
   shell: wp {{ cli_args }} core language install "{{ LOCALE }}" --activate
 
 - name: Set key and salt values
-  shell: wp config {{ cli_args }} set {{ item.key }} {{ item.value }} --add --type=constant
-  with_dict: "{{ WP_SALTS }}"
+  shell: wp config {{ cli_args }} set {{ wp_salt.key }} {{ wp_salt.value }} --add --type=constant
+  loop: "{{ WP_SALTS|dict2items }}"
+  loop_control:
+    loop_var: wp_salt
 
 - name: Copy htaccess config file
   template:
@@ -126,10 +140,12 @@
 
 # Plugins
 - name: Install WordPress plugins that are activated
-  shell: wp {{ cli_args }} plugin install "{{ item }}" --force --activate
-  with_items: "{{ wordpress_default_plugins }}"
+  shell: wp {{ cli_args }} plugin install "{{ wordpress_default_plugin }}" --force --activate
+  loop: "{{ wordpress_default_plugins }}"
+  loop_control:
+    loop_var: wordpress_default_plugin
 
-# Option for an alt login - when an alt_path is set and an alt_config exists  
+# Option for an alt login - when an alt.path is set and an alt.config exists  
 - name: Set alt path
   shell: wp {{ cli_args }} option set {{ WP_ALT_CONFIG }}  {{ WP_ALT_PATH }}
   when: WP_ALT_ENABLED

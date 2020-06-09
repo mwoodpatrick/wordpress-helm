@@ -1,5 +1,5 @@
 apiVersion: v1
-appVersion: "5.2.3"
+appVersion: "5.4.1"
 description: WordPress with a replicated MariaDB backend
 name: wordpress
 # Please only change the chart version as part of the release procedure: see
