@@ -172,12 +172,12 @@ wpSalts: {}
 
 image:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress
-  tag: 0.1.1
+  tag: 0.1.2
   pullPolicy: Always
 
 initImage:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress-cli-ansible
-  tag: 0.1.1
+  tag: 0.1.2
   pullPolicy: Always
 
 ingress:
