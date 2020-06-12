@@ -15,3 +15,9 @@ RUN a2enmod rewrite expires
 RUN pecl install -o -f redis \
     && rm -rf /tmp/pear \
     && docker-php-ext-enable redis
+
+# Do not use a privileged port for Apache so it can run as non-root
+ENV PORT 8080
+ENV TLS_PORT 8443
+RUN sed -i "s/\<80\>/$PORT/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+RUN sed -i "s/\<443\>/$TLS_PORT/g" /etc/apache2/sites-available/default-ssl.conf /etc/apache2/ports.conf
