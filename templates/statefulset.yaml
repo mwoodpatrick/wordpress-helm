@@ -26,8 +26,10 @@ spec:
         {{- toYaml .Values.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
-      # imagePullSecrets:
-      #   - name: {{ .Values.initImage.imagePullSecretName }}
+      {{- if .Values.initImage.imagePullSecretName }}
+      imagePullSecrets:
+        - name: {{ .Values.initImage.imagePullSecretName }}
+      {{- end }}
       initContainers:
         - name: init-{{ .Chart.Name }}
           image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
