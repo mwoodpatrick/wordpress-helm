@@ -129,7 +129,7 @@ redis:
 
 
 # This will add a cronjob that performs a daily backup of the wordpress
-# database, copying an sql file created by `wp db export` to the given PVC.
+# database, copying an sql file created by `wp db export` to the given target.
 # backup:
 #   enabled: true
 #   # The target location of the backup. This can be a local directory (not
@@ -141,9 +141,12 @@ redis:
 #     -----BEGIN OPENSSH PRIVATE KEY-----
 #     ...
 #     -----END OPENSSH PRIVATE KEY-----
-#   # Mounted to /etc/ssh/known_hosts
+#   # Mounted to /etc/ssh/known_hosts. Required when `backup.target` is reached
+#   # via SSH
 #   sshKnownHosts: |
 #     hostname keytype key
+#   # The interval at which backups occur. Defaults to 86400 seconds (24 hours)
+#   intervalSeconds:
 # It's advisable to set resource limits to prevent your K8s cluster from
 # crashing
 # resources:

@@ -181,7 +181,6 @@ initImage:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress-cli-ansible
   tag: 0.1.2
   pullPolicy: Always
-  imagePullSecretName: greenhost-registry-pull
 
 ingress:
   enabled: false
@@ -267,6 +266,7 @@ redis:
 
 backup:
   enabled: false
+  intervalSeconds: 86400
 
 # Some of the variables configured above are put into a variable here, that's
 # completely stored as a b64encoded secret in Kubernetes. If you're not a
