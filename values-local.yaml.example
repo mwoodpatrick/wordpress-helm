@@ -66,7 +66,7 @@ wordpress:
 
   ## mu_plugins are installed as hidden and cannot be updated from the UI
   ## mu_dir  'mu-plugins' maps to wp-content/mu-plugins
-  ## mu_plugins supplies a detailed list of mu values and plugins with versions 
+  ## mu_plugins supplies a detailed list of mu values and plugins with versions
 
   mu_plugins_enabled: false
   mu_plugins_dir: mu-plugins
@@ -75,8 +75,8 @@ wordpress:
        name: Block Bad Queries
        version: 20200319
        phpfile: block-bad-queries.php
-  
-  ## Enable externally triggered cron for an MU cron plugin 
+
+  ## Enable externally triggered cron for an MU cron plugin
   # NOTE: A value for mu_cron_enabled must be set. Select either true or false
   # NOTE: This cron must be triggered by a call you have set up outside the server
   mu_cron:
@@ -162,7 +162,7 @@ redis:
 #   enabled: true
 #   # Example annotation to make cert-manager manage the TLS certificates for
 #   # this ingress (Don't supply crt and key to the tls config in this case).
-#   # annotations: 
+#   # annotations:
 #   #   kubernetes.io/tls-acme: "true"
 #   path: /
 #   hosts:
@@ -173,7 +173,7 @@ redis:
 #       secretName: wordpress-cert
 #       crt: |
 #         Optionally insert your certificate here, it will be saved as a
-#         Kubernetes secret. You can insert the whole certificate chain here. 
+#         Kubernetes secret. You can insert the whole certificate chain here.
 #         NOTE: Don't do this if you use cert-manager to get your certificates!
 #       key: |
 #         If you use a custom certificate, insert your TLS key here, it will be

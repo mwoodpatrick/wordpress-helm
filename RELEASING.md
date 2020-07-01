@@ -2,6 +2,7 @@
 
 When releasing a new version of the wordpress-helm chart, please remember to do
 the following:
+* update `CHANGELOG.md`;
 * change the chart version in `Chart.yaml`;
 * change the default `image.tag` and `initImage.tag` in `values.yaml` to the new
   version (e.g., "0.1.3");

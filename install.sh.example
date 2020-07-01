@@ -1,12 +1,15 @@
 #!/bin/bash
 
-# Use this installation script as an example for easy installation. Copy it to
-# `install.sh` and edit the values file names if you need to.
+# You can use this installation script to install production ready clusters.
+# Make sure to create `values-local.yaml` and edit the values to reflect your
+# website.
+
+# Edit the `releaseName` variable below  if you want to release several
+# production sites.
 
 set -v
 
-# Makes sure you use docker image tags for the branch you're working on now
-. variables.sh
+releaseName="wordpress-production"
 
 # Upgrade or install application using the current git branch as docker tag
-helm upgrade $releaseName . --install -f values-local.yaml --set initImage.tag=$dockerTag --set image.tag=$dockerTag
+helm upgrade $releaseName . --install -f values-local.yaml
