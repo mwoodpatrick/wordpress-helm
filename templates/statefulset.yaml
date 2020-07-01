@@ -173,7 +173,6 @@ spec:
               mountPath: /var/local/ssh-private-key
             - name: ssh-known-hosts
               mountPath: /etc/ssh/ssh_known_hosts
-              subPath: ssh_known_hosts
             {{- end }}
         {{- end }}
     {{- with .Values.nodeSelector }}

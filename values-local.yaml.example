@@ -141,8 +141,8 @@ redis:
 #     -----BEGIN OPENSSH PRIVATE KEY-----
 #     ...
 #     -----END OPENSSH PRIVATE KEY-----
-#   # Mounted to /etc/ssh/known_hosts. Required when `backup.target` is reached
-#   # via SSH
+#   # Mounted to /etc/ssh/ssh_known_hosts. Required when `sshPrivateKey` is
+#   # provided, ignored otherwise
 #   sshKnownHosts: |
 #     hostname keytype key
 #   # The interval at which backups occur. Defaults to 86400 seconds (24 hours)

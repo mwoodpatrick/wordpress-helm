@@ -10,9 +10,7 @@ ENV ANSIBLE_CONFIG /var/local/ansible/ansible.cfg
 # be writable for ssh to work.
 RUN mkdir -p /etc/X11/fs && chown -R 33:33 /etc/X11/fs
 
-# SSH Identity file location for backup playbook. It's in /etc/X11/fs which is
-# the default home directory for the user with ID 33, which is the UID of the
-# www-data user in the Debian container that runs the site...
+# SSH Identity file location for backup playbook
 RUN mkdir -p /etc/ssh/ && echo "IdentityFile /var/local/ssh-private-key/ssh-private-key" > /etc/ssh/ssh_config
 
 # Chown the files to the Debian www-data user, because that's the only WP
