@@ -8,9 +8,7 @@
 
 ## Version of the images
 
-<!-- The helm chart allows you to customize the docker containers that are used.
-     Please use `kubectl describe pod <your pod>` and copy the lines starting
-     with "Image:" (there should be two). -->
+<!-- The helm chart allows you to customize the docker containers that are used. Please use `kubectl describe pod [your pod]` and copy the lines starting with "Image:" (there should be two). -->
 
 1. Init container image: ...
 2. Container image: ...
