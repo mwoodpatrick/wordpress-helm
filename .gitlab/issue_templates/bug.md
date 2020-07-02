@@ -36,6 +36,6 @@
 
 ## Issue confidentiality
 
-NOTE: It is easy to leak information about your website configuration if you
+NOTE: Be careful not to leak information about your website configuration if you
 file a report here. If you're not sure if your report contains confidential
 information, make sure to check "This issue is confidential" below.
