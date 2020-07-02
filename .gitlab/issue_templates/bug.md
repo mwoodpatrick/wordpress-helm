@@ -25,7 +25,7 @@
 
 ## Expected behaviour
 
-<!-- What you should see when everything is working correctly) -->
+<!-- What you should see when everything is working correctly -->
 
 ## Actual behaviour
 
