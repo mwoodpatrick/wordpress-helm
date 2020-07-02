@@ -15,8 +15,7 @@
 
 ## Steps to reproduce
 
-<!-- How one can reproduce the issue - this is very important. Please include
-     relevant configuration parameters of the helmn chart -->
+<!-- How one can reproduce the issue - this is very important. Please include relevant configuration parameters of the helm chart -->
 
 1. (step 1)
 1. (step 2)
