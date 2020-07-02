@@ -30,8 +30,7 @@
 
 ## Relevant logs and/or screen shots
 
-<!-- Paste any relevant logs - please use code blocks (```) to format console
-     output, logs, and code as it's very hard to read otherwise. -->
+<!-- Paste any relevant logs - please use code blocks (```) to format console output, logs, and code as it's very hard to read otherwise. -->
 
 <!--
 
