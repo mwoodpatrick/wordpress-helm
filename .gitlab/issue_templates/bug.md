@@ -33,9 +33,9 @@
 <!-- Paste any relevant logs - please use code blocks (```) to format console output, logs, and code as it's very hard to read otherwise. -->
 
 <!--
-
 ## Issue confidentiality
 
 NOTE: Be careful not to leak information about your website configuration if you
 file a report here. If you're not sure if your report contains confidential
 information, make sure to check "This issue is confidential" below.
+-->
