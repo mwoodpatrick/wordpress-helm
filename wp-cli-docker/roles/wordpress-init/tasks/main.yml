@@ -95,7 +95,7 @@
 
 - name: Add WordPress site languages
   shell: wp {{ cli_args }} core language install "{{ language }}"
-  loop: "{{ LANGUAGES|dict2items }}"
+  loop: "{{ LANGUAGES }}"
   loop_control:
     loop_var: language
 
