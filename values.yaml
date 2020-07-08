@@ -67,6 +67,13 @@ openid_connect_settings:
   # endpoint_userinfo: https://sso.example.com/oauth2/userinfo
   # endpoint_token: https://sso.example.com/oauth2/token
   # endpoint_end_session: https://sso.example.com/logout
+  # If set to true roles are mapped to users when they log in. If this value is
+  # set to true, role_key has to be set as well.
+  role_mapping_enabled: false
+  # Where in the user claim array to find the user's roles. Possible standard
+  # values: roles or groups
+  role_key: "roles"
+
 
 
 wordpress:
@@ -279,6 +286,7 @@ ansibleSecrets: |
   WP_CONTENT_REPO_CONTENT_DIR: {{ .Values.git_repo.wp_content_dir }}
   WP_CONTENT_REPO_ENABLED: {{ .Values.git_repo.enabled }}
   WP_CONTENT_REPO_URL: https://{{ .Values.git_repo.token_user }}:{{ .Values.git_repo.token_key }}@{{ .Values.git_repo.url }}{{ .Values.git_repo.name }}
+  WP_OPENID_CONNECT_ROLE_MAPPING_ENABLED: {{ .Values.openid_connect_settings.role_mapping_enabled }}
   WP_CONTENT_REPO_VERSION: {{ .Values.git_repo.version }}
   WP_EMAIL: {{ .Values.wordpress.config.adm.email }}
   WP_PASS: {{ .Values.wordpress.config.adm.pssw }}
@@ -328,6 +336,8 @@ ansibleSecrets: |
     redirect_user_back: {{ .Values.openid_connect_settings.redirect_user_back }}
     scope: {{ .Values.openid_connect_settings.scope }}
     state_time_limit: {{ .Values.openid_connect_settings.state_time_limit }}
+    role_key: {{ .Values.openid_connect_settings.role_key }}
+
   WP_SALTS:
     AUTH_KEY: {{ .Values.wpSalts.AUTH_KEY | default ( randAlphaNum 32) }}
     AUTH_SALT: {{ .Values.wpSalts.AUTH_SALT | default ( randAlphaNum 32) }}

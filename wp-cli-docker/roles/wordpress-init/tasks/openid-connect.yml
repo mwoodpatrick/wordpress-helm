@@ -5,3 +5,16 @@
 
 - name: Set openid connect plugin options
   command: wp {{ cli_args }} option set openid_connect_generic_settings --format=json '{{ WP_OPENID_CONNECT_SETTINGS | tojson }}'
+
+- name: Extend functions.php file
+  lineinfile:
+    path: "{{ wordpress_homedir }}/wp-includes/functions.php"
+    regexp: '^require.+additional_functions.php'
+    line:  require( ABSPATH . WPINC . '/additional_functions.php' );
+  when: WP_OPENID_CONNECT_ROLE_MAPPING_ENABLED
+
+- name: Copy additional functions file
+  template:
+    src: templates/additional_functions.php
+    dest: "{{ wordpress_homedir }}/wp-includes/additional_functions.php"
+  when: WP_OPENID_CONNECT_ROLE_MAPPING_ENABLED
