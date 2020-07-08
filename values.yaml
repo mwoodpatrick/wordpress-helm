@@ -1,3 +1,4 @@
+---
 git_repo:
   enabled: false
   name: /my/repo
@@ -14,7 +15,7 @@ openid_connect_settings:
   client_id: wordpress
   # Show a buton for SSO on login form (alternative is "auto" for SSO autologin)
   login_type: button
-  # User WP gets access to 
+  # User WP gets access to these roles
   scope: email profile openid
   identity_key: preferred_username
   # Turn on to ignore SSL errors with OID providers (DON'T USE IN PRODUCTION!)
@@ -36,7 +37,7 @@ openid_connect_settings:
   # This value is quoted twice, because otherwise the wp cli call interprets
   # this as JSON instead of as a string.
   email_format: "'{email}'"
-  # String from which the user's display name is built. 
+  # String from which the user's display name is built.
   # Example: "{given_name} {family_name}"
   displayname_format: ""
   # If "1", the user's identity will be determined by the user name instead of
@@ -56,7 +57,7 @@ openid_connect_settings:
   # WooCommerce "My Account" page would end up on their account page.
   redirect_user_back: "0"
   # When enabled, this will automatically redirect the user back to the
-  # WordPress login page if their access token has expired. 
+  # WordPress login page if their access token has expired.
   redirect_on_logout: "1"
   # Very simple log messages for debugging purposes.
   enable_logging: "0"
@@ -81,7 +82,7 @@ wordpress:
     multilingual:
       enabled: false
       plugins: []
-      config: []      
+      config: []
     # NOTE: Use a theme *slug* here
     theme: twentytwenty
     theme_fallback: twentytwenty
@@ -90,9 +91,9 @@ wordpress:
     version: 5.4.2
     url: "http://localhost"
     title: "Wordpress Helm"
-    ## If including a plugin to alias wp login then set a path for alt and also set the config 
+    ## If including a plugin to alias wp login then set a path for alt and also set the config
     # NOTE: The value of alt enabled must be set as true or false
-    alt: 
+    alt:
       enabled: false
     # config: PATH-SETTING-IN-OPTIONS-TABLE
     # path: SOME-LOGIN-PATH
@@ -113,7 +114,7 @@ wordpress:
       Require all denied
       <Files ~ ".(xml|css|js|jpe?g|png|gif)$">
         Require all granted
-      </Files>  
+      </Files>
 
   ## Detailed list of mu values and plugins with versions
   ## mu_plugins_dir  'mu-plugins' maps to wp-content/mu-plugins
@@ -126,9 +127,9 @@ wordpress:
 
   ## Enable externally triggered cron if a cron plugin is installed
   # NOTE: mu_cron must be have the "enabled" value set as either true or false
-  mu_cron: 
-    enabled: false
   # See values-local.yaml.example for an example value
+  mu_cron:
+    enabled: false
 
 persistence:
   ## Enable the use of a persistent volume
@@ -162,7 +163,7 @@ ansibleVars:
   mode_0440: u+r-wxs,u+r-wxs,o-rwx
   mode_0600: u+rw-xs,g-rwxs,o-rwx
 
-  #Config Directory 
+  # Config Directory
   config_dir: /var/www
 
   ## Plugins
@@ -183,6 +184,7 @@ initImage:
 ingress:
   enabled: false
   annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50M
     # kubernetes.io/tls-acme: "true"
   path: /
 
@@ -250,9 +252,9 @@ database:
       socket=/opt/bitnami/mariadb/tmp/mysql.sock
 
 redis:
-# Set this to true to have a Redis container next to your WP. The WP will be
-# configured to connect to this Redis and `Redis Object Cache` plugin will be
-# installed as a conventional plugin.
+  # Set this to true to have a Redis container next to your WP. The WP will be
+  # configured to connect to this Redis and `Redis Object Cache` plugin will be
+  # installed as a conventional plugin.
   enabled: false
   #   # Set to true you want redis to have persistence:
   #   master:
