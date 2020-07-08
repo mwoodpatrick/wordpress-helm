@@ -67,6 +67,13 @@ openid_connect_settings:
   # endpoint_userinfo: https://sso.example.com/oauth2/userinfo
   # endpoint_token: https://sso.example.com/oauth2/token
   # endpoint_end_session: https://sso.example.com/logout
+  # If set to true roles are mapped to users when they log in. If this value is
+  # set to true, role_key has to be set as well.
+  role_mapping_enabled: false
+  # Where in the user claim array to find the user's roles. Possible standard
+  # values: roles or groups
+  role_key: "roles"
+
 
 
 wordpress:

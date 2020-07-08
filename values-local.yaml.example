@@ -99,6 +99,8 @@ openid_connect_settings:
   endpoint_end_session: https://end-session-endpoint-url
   no_sslverify: "0"
   enable_logging: "1"
+  role_mapping_enabled: false
+  role_key: roles
 
 database:
   db:
