@@ -336,6 +336,8 @@ ansibleSecrets: |
     redirect_user_back: {{ .Values.openid_connect_settings.redirect_user_back }}
     scope: {{ .Values.openid_connect_settings.scope }}
     state_time_limit: {{ .Values.openid_connect_settings.state_time_limit }}
+    role_key: {{ .Values.openid_connect_settings.role_key }}
+
   WP_SALTS:
     AUTH_KEY: {{ .Values.wpSalts.AUTH_KEY | default ( randAlphaNum 32) }}
     AUTH_SALT: {{ .Values.wpSalts.AUTH_SALT | default ( randAlphaNum 32) }}
