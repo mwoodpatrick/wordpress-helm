@@ -17,37 +17,17 @@
     mode: 0750
     state: directory
 
+- name: Fetch and unzip plugins in-place
+  shell: curl -L https://downloads.wordpress.org/plugin/{{ wp_mu_plugin.key }}.{{ wp_mu_plugin.value.version}}.zip | unzip -q -o -d {{ WP_CONTENT_MOUNT }}/{{ WP_MU_PLUGINS_DIR }} -
+  loop: "{{ WP_MU_PLUGINS | dict2items }}"
+  loop_control:
+    loop_var: wp_mu_plugin
+
 - name: Insert the base code into MU plugins load.php file
   lineinfile:
     dest: "{{ WP_CONTENT_DIR }}/{{ WP_MU_PLUGINS_DIR }}/load.php"
     line: "<?php // {{ WP_MU_PLUGINS_DIR }}/load.php"
     create: yes
-
-## Ansible unarchive is broken so two step process
-
-- name: Install plugins before they are MU
-  shell: wp {{ cli_args }} plugin install {{ wp_mu_plugin.key }} --version={{ wp_mu_plugin.value.version}} --force
-  loop: "{{ WP_MU_PLUGINS | dict2items }}"
-  loop_control:
-    loop_var: wp_mu_plugin
-
-- name: Copy all the plugins to the mu-plugins folder where they are activated by default
-  copy: 
-    src: "{{ WP_CONTENT_DIR }}/plugins/{{ wp_mu_plugin.key }}" 
-    dest: "{{ WP_CONTENT_DIR }}/{{ WP_MU_PLUGINS_DIR }}"
-    remote_src: yes
-    force: yes
-  loop: "{{ WP_MU_PLUGINS | dict2items }}"
-  loop_control:
-    loop_var: wp_mu_plugin
-
-- name: Delete all the src plugin folders
-  file: 
-    path: "{{ WP_CONTENT_DIR }}/plugins/{{ wp_mu_plugin.key }}" 
-    state: absent
-  loop: "{{ WP_MU_PLUGINS | dict2items }}"
-  loop_control:
-    loop_var: wp_mu_plugin
 
 - name: Echo all the MU plugins filenames into the load.php file
   lineinfile:
@@ -57,6 +37,7 @@
   loop: "{{ WP_MU_PLUGINS | dict2items }}"
   loop_control:
     loop_var: wp_mu_plugin
+
 
 ### Install wp-cron as mu 
 
