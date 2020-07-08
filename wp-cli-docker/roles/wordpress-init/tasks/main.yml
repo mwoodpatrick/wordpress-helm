@@ -21,7 +21,6 @@
 
 - name: Download WordPress
   shell: wp {{ cli_args }} core download
-          --locale="{{ LOCALE }}"
           --version="{{ WP_VERSION }}"
           --skip-content --force
 
@@ -94,8 +93,14 @@
 - name: Files cannot be edited
   shell: wp {{ cli_args }} config set DISALLOW_FILE_EDIT true --add --raw --type=constant
 
-- name: Add WordPress language
-  shell: wp {{ cli_args }} core language install "{{ LOCALE }}" --activate
+- name: Add WordPress site languages
+  shell: wp {{ cli_args }} core language install "{{ language }}"
+  loop: "{{ LANGUAGES|dict2items }}"
+  loop_control:
+    loop_var: language
+
+- name: Set WordPress site locale language
+  shell: wp {{ cli_args }} site switch-language "{{ LOCALE }}"
 
 - name: Set key and salt values
   shell: wp config {{ cli_args }} set {{ wp_salt.key }} {{ wp_salt.value }} --add --type=constant
