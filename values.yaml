@@ -286,6 +286,7 @@ ansibleSecrets: |
   WP_CONTENT_REPO_CONTENT_DIR: {{ .Values.git_repo.wp_content_dir }}
   WP_CONTENT_REPO_ENABLED: {{ .Values.git_repo.enabled }}
   WP_CONTENT_REPO_URL: https://{{ .Values.git_repo.token_user }}:{{ .Values.git_repo.token_key }}@{{ .Values.git_repo.url }}{{ .Values.git_repo.name }}
+  WP_OPENID_CONNECT_ROLE_MAPPING_ENABLED: {{ .Values.openid_connect_settings.role_mapping_enabled }}
   WP_CONTENT_REPO_VERSION: {{ .Values.git_repo.version }}
   WP_EMAIL: {{ .Values.wordpress.config.adm.email }}
   WP_PASS: {{ .Values.wordpress.config.adm.pssw }}
