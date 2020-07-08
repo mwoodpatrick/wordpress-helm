@@ -150,6 +150,8 @@
   shell: wp {{ cli_args }} option set {{ WP_ALT_CONFIG }}  {{ WP_ALT_PATH }}
   when: WP_ALT_ENABLED
 
+- import_tasks: php.yml
+
 - import_tasks: mu-plugins-cron.yml
   when: WP_MU_PLUGINS_ENABLED
   
