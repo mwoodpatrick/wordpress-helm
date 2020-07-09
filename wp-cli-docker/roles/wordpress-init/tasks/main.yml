@@ -54,7 +54,6 @@
           --dbpass="{{ DB_PASS }}"
           --dbhost="{{ DB_HOST }}"
           --dbprefix="{{ DB_PREFIX }}"
-          --locale="{{ LOCALE }}"
           --dbcharset="{{ dbcharset }}"
           --dbcollate="{{ dbcollate }}"
           --skip-check
@@ -99,8 +98,8 @@
   loop_control:
     loop_var: language
 
-- name: Set WordPress site locale language
-  shell: wp {{ cli_args }} site switch-language "{{ LOCALE }}"
+- name: Set WordPress site default language
+  shell: wp {{ cli_args }} site switch-language "{{ DEFAULT_LANG }}"
 
 - name: Set key and salt values
   shell: wp config {{ cli_args }} set {{ wp_salt.key }} {{ wp_salt.value }} --add --type=constant

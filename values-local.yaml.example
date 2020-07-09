@@ -27,7 +27,7 @@ wordpress:
     # NOTE: Use a theme *slug* here
     theme: twentynineteen
     # NOTE: Make sure you use underscore and that the localisation is in full caps
-    locale: en_US
+    default_language: en_US
     # NOTE: Optionally set a Wordpress version number to override the default
     # version: LOCAL-WORDPRESS-VERSION-NUMBER-OR-DELETE-THIS-LINE
     # NOTE: This is the URL that points to your WordPress installation. If this

@@ -93,11 +93,11 @@ wordpress:
     theme: twentytwenty
     theme_fallback: twentytwenty
     # 
-    # NOTE: Languages are ALL available languages. EN_US is always installed but it is shown explicitly 
+    # NOTE: Languages are ALL available languages. en_US is always installed but it is shown explicitly 
     # EXAMPLE: `languages: "[en_US,fi_FI,wo]"` would install US English, Finnish and Wolof
-    # NOTE: Locale is the default site language. Only one language can be set as the Locale
+    # EXAMPLE: `default_language: fi_FI` would set Finnish for the core language
     languages: "[en_US]" 
-    locale: en_US
+    default_language: en_US
     version: 5.4.2
     url: "http://localhost"
     title: "Wordpress Helm"
@@ -286,7 +286,7 @@ ansibleSecrets: |
   DB_PREFIX: {{ .Values.wordpress.config.db.prefix}}
   DB_USER: {{ .Values.database.db.user }}
   LANGUAGES: {{ .Values.wordpress.site.languages }}
-  LOCALE: {{ .Values.wordpress.site.locale }}
+  DEFAULT_LANG: {{ .Values.wordpress.site.default_language }}
   WP_CONTENT_DIR: {{ .Values.wordpress.wp_content.mount_path }}
   WP_CONTENT_REPO_CONTENT_DIR: {{ .Values.git_repo.wp_content_dir }}
   WP_CONTENT_REPO_ENABLED: {{ .Values.git_repo.enabled }}
