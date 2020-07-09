@@ -75,7 +75,6 @@ openid_connect_settings:
   role_key: "roles"
 
 
-
 wordpress:
   config:
     db:
