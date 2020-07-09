@@ -282,7 +282,7 @@ ansibleSecrets: |
   DB_PREFIX: {{ .Values.wordpress.config.db.prefix}}
   DB_USER: {{ .Values.database.db.user }}
   LOCALE: {{ .Values.wordpress.site.locale }}
-  WP_CONTENT_DIR: {{ .Values.wordpress.wp_content.mount_path }}
+  WP_CONTENT_MOUNT: {{ .Values.wordpress.wp_content.mount_path }}
   WP_CONTENT_REPO_CONTENT_DIR: {{ .Values.git_repo.wp_content_dir }}
   WP_CONTENT_REPO_ENABLED: {{ .Values.git_repo.enabled }}
   WP_CONTENT_REPO_URL: https://{{ .Values.git_repo.token_user }}:{{ .Values.git_repo.token_key }}@{{ .Values.git_repo.url }}{{ .Values.git_repo.name }}
