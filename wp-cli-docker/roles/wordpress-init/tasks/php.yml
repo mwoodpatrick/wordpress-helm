@@ -4,7 +4,7 @@
 - name: Create wp.ini
   file:
     path: "{{ PHP_DIR }}/conf.d/wp.ini"
-    mode: 0600
+    state: touch
 
 - name: PHP memory limit
   lineinfile:
