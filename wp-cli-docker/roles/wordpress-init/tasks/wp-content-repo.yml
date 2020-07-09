@@ -11,6 +11,6 @@
     version: "{{ WP_CONTENT_REPO_VERSION }}"
     depth: 1
 
-- name: "Copy {{ tempdir.path }}/{{ WP_CONTENT_REPO_CONTENT_DIR }} contents to {{ WP_CONTENT_DIR }}"
+- name: "Copy {{ tempdir.path }}/{{ WP_CONTENT_REPO_CONTENT_DIR }} contents to {{ WP_CONTENT_MOUNT }}"
   # rsync files recursive, copy links
-  command: "rsync -rl {{ tempdir.path }}/{{ WP_CONTENT_REPO_CONTENT_DIR }}/ {{ WP_CONTENT_DIR }}"
+  command: "rsync -rl {{ tempdir.path }}/{{ WP_CONTENT_REPO_CONTENT_DIR }}/ {{ WP_CONTENT_MOUNT }}"
