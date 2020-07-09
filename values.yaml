@@ -74,7 +74,11 @@ openid_connect_settings:
   # values: roles or groups
   role_key: "roles"
 
-
+# This disables information about other services to be pushed as environment
+# variables. We do this because these environment variables can be read through
+# the WordPress admin interface, so they can leak information about other things
+# running on the cluster to WordPress administrators
+enableServiceLinks: false
 
 wordpress:
   config:
