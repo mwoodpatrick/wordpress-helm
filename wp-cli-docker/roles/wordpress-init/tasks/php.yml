@@ -1,10 +1,10 @@
 ---
 ## Changes to php.ini
 
-- name: Create wp.ini
-  file:
-    path: "{{ PHP_DIR }}/conf.d/wp.ini"
-    state: touch
+#- name: Create wp.ini
+  #file:
+    #path: "{{ PHP_DIR }}/conf.d/wp.ini"
+    #state: touch
 
 - name: PHP memory limit
   lineinfile:
