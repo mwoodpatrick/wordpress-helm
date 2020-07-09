@@ -6,6 +6,7 @@ RUN ./install-php-extensions.sh
 
 # set recommended PHP.ini settings
 COPY opcache-recommended.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
+COPY wp.ini /usr/local/etc/php/conf.d/wp.ini
 # https://codex.wordpress.org/Editing_wp-config.php#Configure_Error_Logging
 COPY error-logging.ini /usr/local/etc/php/conf.d/error-logging.ini
 

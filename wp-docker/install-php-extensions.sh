@@ -29,4 +29,3 @@ ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
 apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false;
 rm -rf /var/lib/apt/lists/*
 # add php.ini modifications file
-touch /usr/local/etc/php/conf.d/wp.ini
