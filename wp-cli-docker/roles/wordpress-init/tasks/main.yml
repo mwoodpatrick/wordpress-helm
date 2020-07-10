@@ -2,10 +2,10 @@
 
 - name: Add wp content symlink
   file:
-    src: "{{ WP_CONTENT_DIR }}"
+    src: "{{ WP_CONTENT_MOUNT }}"
     path: "{{ wordpress_homedir }}/wp-content"
     state: link
-  when: WP_CONTENT_DIR != wordpress_homedir + "/wp-content"
+  when: WP_CONTENT_MOUNT != wordpress_homedir + "/wp-content"
 
 - import_tasks: wp-content-repo.yml
   when: WP_CONTENT_REPO_ENABLED
