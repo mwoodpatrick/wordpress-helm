@@ -140,6 +140,11 @@ wordpress:
   # See values-local.yaml.example for an example value
   mu_cron:
     enabled: false
+    name: Cron Control
+    repo: https://github.com/Automattic/Cron-Control.git
+    slug: cron-control
+    version: master
+    phpfile: cron-control.php
     # Optional annotations to add to the cronjob object
     cronjob:
       # Every 3 minutes

@@ -81,11 +81,6 @@ wordpress:
   # NOTE: This cron must be triggered by a call you have set up outside the server
   mu_cron:
     enabled: false
-  # name: Cron Control
-  # repo: https://github.com/Automattic/Cron-Control.git
-  # slug: cron-control
-  # version: master
-  # phpfile: cron-control.php
 
 # These settings make sense to overwrite if you want to use the OpenID connect
 # plugin
