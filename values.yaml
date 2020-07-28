@@ -140,6 +140,30 @@ wordpress:
   # See values-local.yaml.example for an example value
   mu_cron:
     enabled: false
+    # Optional annotations to add to the cronjob object
+    cronjob:
+      # Every 3 minutes
+      schedule: "*/3 * * * *"
+      # Set curl's insecure option if you use e.g. self-signed certificates
+      curlInsecure: false
+      # If not set, nextcloud deployment one will be set
+      # resources:
+        # We usually recommend not to specify default resources and to leave this as a conscious
+        # choice for the user. This also increases chances charts run on environments with little
+        # resources, such as Minikube. If you do want to specify resources, uncomment the following
+        # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+        # limits:
+        #  cpu: 100m
+        #  memory: 128Mi
+        # requests:
+        #  cpu: 100m
+        #  memory: 128Mi
+      annotations: {}
+      failedJobsHistoryLimit: 5
+      successfulJobsHistoryLimit: 1
+      # Path to the cronjob PHP file (gets appended to the wordpress URL)
+      # TODO: What should be the URL?
+      path: cron-control.php
 
 persistence:
   ## Enable the use of a persistent volume

@@ -13,6 +13,14 @@ metadata:
 {{- with .Values.ingress.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
+{{- if .Values.mu_cron.enabled }}
+    # Deny any traffic to the cronjob path that goes through ingress
+    # (i.e. external traffic)
+    nginx.org/server-snippets: |-
+      location {{ .Values.mu_cron.cronjob.path }}{
+          deny all;
+      }
+{{- end }}
 {{- end }}
 spec:
 {{- if .Values.ingress.tls }}
@@ -34,5 +42,6 @@ spec:
             backend:
               serviceName: {{ $fullName }}
               servicePort: http
+
   {{- end }}
 {{- end }}
