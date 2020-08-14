@@ -123,6 +123,7 @@ redis:
 # master:
 #   persistence:
 #     enabled: false
+#   disableCommands: []
 #
 #   # Set to true to have a master and a slave redis. Not necessary for caching
 #   cluster:
