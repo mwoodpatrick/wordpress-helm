@@ -35,6 +35,7 @@ spec:
       imagePullSecrets:
         - name: {{ .Values.initImage.imagePullSecretName }}
       {{- end }}
+      enableServiceLinks: {{ .Values.enableServiceLinks }}
       initContainers:
         - name: init-{{ .Chart.Name }}
           image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
