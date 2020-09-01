@@ -1,4 +1,4 @@
-{{- if .Values.mu_cron.enabled }}
+{{- if .Values.wordpress.mu_cron.enabled }}
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
@@ -9,14 +9,14 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
   annotations:
-{{ toYaml .Values.mu_cron.cronjob.annotations | indent 4 }}
+{{ toYaml .Values.wordpress.mu_cron.cronjob.annotations | indent 4 }}
 spec:
-  schedule: "{{ .Values.mu_cron.cronjob.schedule }}"
+  schedule: "{{ .Values.wordpress.mu_cron.cronjob.schedule }}"
   concurrencyPolicy: Forbid
-  {{- with .Values.mu_cron.cronjob.failedJobsHistoryLimit }}
+  {{- with .Values.wordpress.mu_cron.cronjob.failedJobsHistoryLimit }}
   failedJobsHistoryLimit: {{ . }}
   {{- end }}
-  {{- with .Values.mu_cron.cronjob.successfulJobsHistoryLimit }}
+  {{- with .Values.wordpress.mu_cron.cronjob.successfulJobsHistoryLimit }}
   successfulJobsHistoryLimit: {{ . }}
   {{- end }}
   jobTemplate:
@@ -32,36 +32,35 @@ spec:
             app.kubernetes.io/managed-by: {{ .Release.Service }}
         spec:
           restartPolicy: Never
-          {{- if (default .Values.image.pullSecrets .Values.mu_cron.cronjob.image.pullSecrets) }}
+          {{- if (default .Values.image.pullSecrets .Values.wordpress.mu_cron.cronjob.image.pullSecrets) }}
           imagePullSecrets:
-          {{- range (default .Values.image.pullSecrets .Values.mu_cron.cronjob.image.pullSecrets) }}
+          {{- range (default .Values.image.pullSecrets .Values.wordpress.mu_cron.cronjob.image.pullSecrets) }}
             - name: {{ . }}
           {{- end }}
           {{- end }}
           containers:
             - name: {{ .Chart.Name }}
-              image: "{{ default .Values.image.repository .Values.mu_cron.cronjob.image.repository }}:{{ default .Values.image.tag .Values.mu_cron.cronjob.image.tag }}"
-              imagePullPolicy: {{ default .Values.image.pullPolicy .Values.mu_cron.cronjob.image.pullPolicy }}
+              image: "{{ default .Values.image.repository .Values.wordpress.mu_cron.cronjob.image.repository }}:{{ default .Values.image.tag .Values.wordpress.mu_cron.cronjob.image.tag }}"
+              imagePullPolicy: {{ default .Values.image.pullPolicy .Values.wordpress.mu_cron.cronjob.image.pullPolicy }}
               command: [ "curl" ]
               args:
-              {{- if .Values.mu_cron.cronjob.curlInsecure }}
+              {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }}
                 - "-k"
               {{- end }}
                 - "--fail"
                 - "-L"
-                # TODO: How do I send the secret?
-                - "http://{{ .Release.Service }}/{{ .Values.mu_cron.cronjob.path }}"
+                - "http://{{ .Release.Service }}/{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wordpress.mu_cron.cronjob.static_key }}"
               resources:
-{{ toYaml (default .Values.resources .Values.mu_cron.cronjob.resources) | indent 16 }}
-    {{- with (default .Values.nodeSelector .Values.mu_cron.cronjob.nodeSelector) }}
+{{ toYaml (default .Values.resources .Values.wordpress.mu_cron.cronjob.resources) | indent 16 }}
+    {{- with (default .Values.nodeSelector .Values.wordpress.mu_cron.cronjob.nodeSelector) }}
           nodeSelector:
 {{ toYaml . | indent 12 }}
     {{- end }}
-    {{- with (default .Values.affinity .Values.mu_cron.cronjob.affinity) }}
+    {{- with (default .Values.affinity .Values.wordpress.mu_cron.cronjob.affinity) }}
           affinity:
 {{ toYaml . | indent 12 }}
     {{- end }}
-    {{- with (default .Values.tolerations .Values.mu_cron.cronjob.tolerations) }}
+    {{- with (default .Values.tolerations .Values.wordpress.mu_cron.cronjob.tolerations) }}
           tolerations:
 {{ toYaml . | indent 12 }}:
     {{- end }}

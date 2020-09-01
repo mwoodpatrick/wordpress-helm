@@ -76,6 +76,12 @@ openid_connect_settings:
   role_key: "roles"
 
 
+# This disables information about other services to be pushed as environment
+# variables. We do this because these environment variables can be read through
+# the WordPress admin interface, so they can leak information about other things
+# running on the cluster to WordPress administrators
+enableServiceLinks: false
+
 wordpress:
   config:
     db:
@@ -92,11 +98,10 @@ wordpress:
     # NOTE: Use a theme *slug* here
     theme: twentytwenty
     theme_fallback: twentytwenty
-    # 
-    # NOTE: Languages are ALL available languages. en_US is always installed but it is shown explicitly 
+    # NOTE: Languages are ALL available languages. en_US is always installed but it is shown explicitly
     # EXAMPLE: `languages: "[en_US,fi_FI,wo]"` would install US English, Finnish and Wolof
     # EXAMPLE: `default_language: fi_FI` would set Finnish for the core language
-    languages: "[en_US]" 
+    languages: "[en_US]"
     default_language: en_US
     version: 5.4.2
     url: "http://localhost"
@@ -135,9 +140,9 @@ wordpress:
   # See values-local.yaml.example for an example value
   mu_plugins: {}
 
-  ## Enable externally triggered cron if a cron plugin is installed
-  # NOTE: mu_cron must be have the "enabled" value set as either true or false
-  # See values-local.yaml.example for an example value
+  ## Enable externally triggered cron with a cron plugin
+  # NOTE: mu_cron is disabled by default. Set `mu_cron: enabled: true` in your
+  # values-local to enable mu_cron.
   mu_cron:
     enabled: false
     name: Cron Control
@@ -167,8 +172,12 @@ wordpress:
       failedJobsHistoryLimit: 5
       successfulJobsHistoryLimit: 1
       # Path to the cronjob PHP file (gets appended to the wordpress URL)
-      # TODO: What should be the URL?
-      path: cron-control.php
+      path: wp-cron.php
+      # You can override this key for the cronjobs. If you don't change the
+      # ingress, the cronjob URL will be blocked from outside, so this variable
+      # should not be very important to you.
+      static_key: cronkey
+      image: {}
 
 persistence:
   ## Enable the use of a persistent volume
@@ -214,6 +223,7 @@ image:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress
   tag: 0.1.3
   pullPolicy: Always
+  pullSecrets: []
 
 initImage:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress-cli-ansible
