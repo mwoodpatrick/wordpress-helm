@@ -2,10 +2,10 @@
 
 - name: Add wp content symlink
   file:
-    src: "{{ WP_CONTENT_DIR }}"
+    src: "{{ WP_CONTENT_MOUNT }}"
     path: "{{ wordpress_homedir }}/wp-content"
     state: link
-  when: WP_CONTENT_DIR != wordpress_homedir + "/wp-content"
+  when: WP_CONTENT_MOUNT != wordpress_homedir + "/wp-content"
 
 - import_tasks: wp-content-repo.yml
   when: WP_CONTENT_REPO_ENABLED
@@ -21,7 +21,6 @@
 
 - name: Download WordPress
   shell: wp {{ cli_args }} core download
-          --locale="{{ LOCALE }}"
           --version="{{ WP_VERSION }}"
           --skip-content --force
 
@@ -55,7 +54,6 @@
           --dbpass="{{ DB_PASS }}"
           --dbhost="{{ DB_HOST }}"
           --dbprefix="{{ DB_PREFIX }}"
-          --locale="{{ LOCALE }}"
           --dbcharset="{{ dbcharset }}"
           --dbcollate="{{ dbcollate }}"
           --skip-check
@@ -94,8 +92,14 @@
 - name: Files cannot be edited
   shell: wp {{ cli_args }} config set DISALLOW_FILE_EDIT true --add --raw --type=constant
 
-- name: Add WordPress language
-  shell: wp {{ cli_args }} core language install "{{ LOCALE }}" --activate
+- name: Add WordPress site languages
+  shell: wp {{ cli_args }} core language install "{{ language }}"
+  loop: "{{ LANGUAGES }}"
+  loop_control:
+    loop_var: language
+
+- name: Set WordPress site default language
+  shell: wp {{ cli_args }} site switch-language "{{ DEFAULT_LANG }}"
 
 - name: Set key and salt values
   shell: wp config {{ cli_args }} set {{ wp_salt.key }} {{ wp_salt.value }} --add --type=constant

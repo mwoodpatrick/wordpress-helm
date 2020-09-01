@@ -3,67 +3,53 @@
 # WP Configuration for MU
 
 - name:  Set content directory variable in wp-config
-  shell: wp {{ cli_args }} config set  'WP_CONTENT_DIR'  "ABSPATH . 'wp-content'"   --raw --type=constant
+  shell: wp {{ cli_args }} config set  'WP_CONTENT_DIR' "ABSPATH . 'wp-content'"  --raw --type=constant
 
 - name:  Set MU plugins directory in wp-config
-  shell: wp {{ cli_args }} config set  'WPMU_PLUGIN_DIR' "WP_CONTENT_DIR . '/{{ WP_MU_PLUGINS_DIR }}'"   --raw --type=constant
+  shell: wp {{ cli_args }} config set  'WPMU_PLUGIN_DIR' "ABSPATH . 'wp-content/{{ WP_MU_PLUGINS_DIR }}'"  --raw --type=constant
 
+- name:  Set content url variable in wp-config
+  shell: wp {{ cli_args }} config set  'WP_CONTENT_URL' "'{{ WP_URL }}/wp-content'"  --raw --type=constant
+
+- name:  Set MU plugins url in wp-config
+  shell: wp {{ cli_args }} config set  'WPMU_PLUGIN_URL' "'{{ WP_URL }}/wp-content/mu-plugins'"  --raw --type=constant
 
 # MU plugins directory and loader
 
 - name: Add a MU plugins directory when WP_MU_PLUGINS_DIR is set
   file:
-    path: "{{ WP_CONTENT_DIR }}/{{ WP_MU_PLUGINS_DIR }}"
+    path: "{{ WP_CONTENT_MOUNT }}/{{ WP_MU_PLUGINS_DIR }}"
     mode: 0750
     state: directory
 
+- name: Fetch and unzip plugins in-place
+  shell: curl -L https://downloads.wordpress.org/plugin/{{ wp_mu_plugin.key }}.{{ wp_mu_plugin.value.version}}.zip | unzip -q -o -d {{ WP_CONTENT_MOUNT }}/{{ WP_MU_PLUGINS_DIR }} -
+  loop: "{{ WP_MU_PLUGINS | dict2items }}"
+  loop_control:
+    loop_var: wp_mu_plugin
+
 - name: Insert the base code into MU plugins load.php file
   lineinfile:
-    dest: "{{ WP_CONTENT_DIR }}/{{ WP_MU_PLUGINS_DIR }}/load.php"
+    dest: "{{ WP_CONTENT_MOUNT }}/{{ WP_MU_PLUGINS_DIR }}/load.php"
     line: "<?php // {{ WP_MU_PLUGINS_DIR }}/load.php"
     create: yes
 
-## Ansible unarchive is broken so two step process
-
-- name: Install plugins before they are MU
-  shell: wp {{ cli_args }} plugin install {{ wp_mu_plugin.key }} --version={{ wp_mu_plugin.value.version}} --force
-  loop: "{{ WP_MU_PLUGINS | dict2items }}"
-  loop_control:
-    loop_var: wp_mu_plugin
-
-- name: Copy all the plugins to the mu-plugins folder where they are activated by default
-  copy: 
-    src: "{{ WP_CONTENT_DIR }}/plugins/{{ wp_mu_plugin.key }}" 
-    dest: "{{ WP_CONTENT_DIR }}/{{ WP_MU_PLUGINS_DIR }}"
-    remote_src: yes
-    force: yes
-  loop: "{{ WP_MU_PLUGINS | dict2items }}"
-  loop_control:
-    loop_var: wp_mu_plugin
-
-- name: Delete all the src plugin folders
-  file: 
-    path: "{{ WP_CONTENT_DIR }}/plugins/{{ wp_mu_plugin.key }}" 
-    state: absent
-  loop: "{{ WP_MU_PLUGINS | dict2items }}"
-  loop_control:
-    loop_var: wp_mu_plugin
-
 - name: Echo all the MU plugins filenames into the load.php file
   lineinfile:
-    dest: "{{ WP_CONTENT_DIR }}/{{ WP_MU_PLUGINS_DIR }}/load.php"
+    dest: "{{ WP_CONTENT_MOUNT }}/{{ WP_MU_PLUGINS_DIR }}/load.php"
     line: "require(WPMU_PLUGIN_DIR . '/{{ wp_mu_plugin.key }}/{{ wp_mu_plugin.value.phpfile }}');"
     insertbefore: EOF
   loop: "{{ WP_MU_PLUGINS | dict2items }}"
   loop_control:
     loop_var: wp_mu_plugin
 
+
 ### Install wp-cron as mu 
 
 - name: Shallow clone from the github repository
   git:
     repo: "{{ WP_MU_CRON_SETTINGS.repo}}"
-    dest: "{{ WP_CONTENT_DIR }}/{{ WP_MU_PLUGINS_DIR }}/{{ WP_MU_CRON_SETTINGS.slug }}"
+    dest: "{{ WP_CONTENT_MOUNT }}/{{ WP_MU_PLUGINS_DIR }}/{{ WP_MU_CRON_SETTINGS.slug }}"
     force: yes
     depth: 1
     version: "{{ WP_MU_CRON_SETTINGS.version}}"
@@ -71,7 +57,7 @@
 
 - name: Append cron control plugin filename to the load.php file
   lineinfile:
-    dest: "{{ WP_CONTENT_DIR }}/{{ WP_MU_PLUGINS_DIR }}/load.php"
+    dest: "{{ WP_CONTENT_MOUNT }}/{{ WP_MU_PLUGINS_DIR }}/load.php"
     line: "require(WPMU_PLUGIN_DIR . '/{{ WP_MU_CRON_SETTINGS.slug }}/{{ WP_MU_CRON_SETTINGS.phpfile}}');"
     insertbefore: EOF
   when: WP_MU_CRON_ENABLED

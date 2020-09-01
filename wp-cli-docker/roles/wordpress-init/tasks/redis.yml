@@ -12,4 +12,3 @@
 
 - name: Enable redis object cache
   shell: wp {{ cli_args }} redis enable
-

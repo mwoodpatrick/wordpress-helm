@@ -2,4 +2,5 @@
 charts
 values-*.yaml
 install*.sh
+requirements.lock
 /data/

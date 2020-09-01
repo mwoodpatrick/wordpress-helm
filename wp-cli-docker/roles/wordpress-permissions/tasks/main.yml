@@ -6,7 +6,7 @@
 # Ensure there is a cache outside uploads
 - name: Add a wp-content cache directory
   file:
-    path: "{{ WP_CONTENT_DIR }}/cache"
+    path: "{{ WP_CONTENT_MOUNT }}/cache"
     mode: 0750
     state: directory
 

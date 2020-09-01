@@ -27,7 +27,7 @@ wordpress:
     # NOTE: Use a theme *slug* here
     theme: twentynineteen
     # NOTE: Make sure you use underscore and that the localisation is in full caps
-    locale: en_US
+    default_language: en_US
     # NOTE: Optionally set a Wordpress version number to override the default
     # version: LOCAL-WORDPRESS-VERSION-NUMBER-OR-DELETE-THIS-LINE
     # NOTE: This is the URL that points to your WordPress installation. If this
@@ -99,6 +99,8 @@ openid_connect_settings:
   endpoint_end_session: https://end-session-endpoint-url
   no_sslverify: "0"
   enable_logging: "1"
+  role_mapping_enabled: false
+  role_key: roles
 
 database:
   db:

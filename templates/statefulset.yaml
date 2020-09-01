@@ -27,20 +27,21 @@ spec:
         {{- toYaml .Values.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
+      securityContext:
+        runAsUser: 33
+        runAsGroup: 33
+        fsGroup: 33
+        runAsNonRoot: true
       {{- if .Values.initImage.imagePullSecretName }}
       imagePullSecrets:
         - name: {{ .Values.initImage.imagePullSecretName }}
       {{- end }}
+      enableServiceLinks: {{ .Values.enableServiceLinks }}
       initContainers:
         - name: init-{{ .Chart.Name }}
           image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
           imagePullPolicy: {{ .Values.initImage.pullPolicy }}
           # command: ['sh', '-c', '/usr/local/bin/wp --info > /var/www/html/wp-info.txt & echo "sleeping now" && sleep 600']
-          # The WP Apache container runs Debian, which has a different UID for
-          # the www-data user than this Alpine container, so use that ID instead
-          securityContext:
-            runAsUser: 33
-            runAsGroup: 33
           volumeMounts:
             - name: {{ include "wordpress.name" . }}-wp-storage
               mountPath: /var/www/html
@@ -69,9 +70,6 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          securityContext:
-            runAsUser: 33
-            runAsGroup: 33
           ports:
             - name: http
               containerPort: 8080
@@ -136,9 +134,6 @@ spec:
           imagePullPolicy: {{ .Values.initImage.pullPolicy }}
           command:
             - "/var/local/ansible/scripts/backup.sh"
-          securityContext:
-            runAsUser: 33
-            runAsGroup: 33
           env:
             - name: WORDPRESS_DB_HOST
               value: {{ .Release.Name }}-database

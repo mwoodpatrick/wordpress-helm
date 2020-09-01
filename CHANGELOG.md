@@ -1,3 +1,8 @@
+## [0.1.4] - 2020-07-08
+
+* Use PodSecurityContext instead of container security contexts
+* If enabled, merge roles from OIDC server into OIDC accounts
+
 ## [0.1.3] - 2020-06-18
 
 * Only set imagePullSecrets if the corresponding helm value is set.

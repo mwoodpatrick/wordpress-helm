@@ -15,7 +15,7 @@ openid_connect_settings:
   client_id: wordpress
   # Show a buton for SSO on login form (alternative is "auto" for SSO autologin)
   login_type: button
-  # User WP gets access to 
+  # User WP gets access to these roles
   scope: email profile openid
   identity_key: preferred_username
   # Turn on to ignore SSL errors with OID providers (DON'T USE IN PRODUCTION!)
@@ -37,7 +37,7 @@ openid_connect_settings:
   # This value is quoted twice, because otherwise the wp cli call interprets
   # this as JSON instead of as a string.
   email_format: "'{email}'"
-  # String from which the user's display name is built. 
+  # String from which the user's display name is built.
   # Example: "{given_name} {family_name}"
   displayname_format: ""
   # If "1", the user's identity will be determined by the user name instead of
@@ -57,7 +57,7 @@ openid_connect_settings:
   # WooCommerce "My Account" page would end up on their account page.
   redirect_user_back: "0"
   # When enabled, this will automatically redirect the user back to the
-  # WordPress login page if their access token has expired. 
+  # WordPress login page if their access token has expired.
   redirect_on_logout: "1"
   # Very simple log messages for debugging purposes.
   enable_logging: "0"
@@ -68,7 +68,18 @@ openid_connect_settings:
   # endpoint_userinfo: https://sso.example.com/oauth2/userinfo
   # endpoint_token: https://sso.example.com/oauth2/token
   # endpoint_end_session: https://sso.example.com/logout
+  # If set to true roles are mapped to users when they log in. If this value is
+  # set to true, role_key has to be set as well.
+  role_mapping_enabled: false
+  # Where in the user claim array to find the user's roles. Possible standard
+  # values: roles or groups
+  role_key: "roles"
 
+# This disables information about other services to be pushed as environment
+# variables. We do this because these environment variables can be read through
+# the WordPress admin interface, so they can leak information about other things
+# running on the cluster to WordPress administrators
+enableServiceLinks: false
 
 wordpress:
   config:
@@ -86,14 +97,18 @@ wordpress:
     # NOTE: Use a theme *slug* here
     theme: twentytwenty
     theme_fallback: twentytwenty
-    # NOTE: Make sure you use underscore and that the localisation is in full caps
-    locale: en_US
+    # 
+    # NOTE: Languages are ALL available languages. en_US is always installed but it is shown explicitly 
+    # EXAMPLE: `languages: "[en_US,fi_FI,wo]"` would install US English, Finnish and Wolof
+    # EXAMPLE: `default_language: fi_FI` would set Finnish for the core language
+    languages: "[en_US]" 
+    default_language: en_US
     version: 5.4.2
     url: "http://localhost"
     title: "Wordpress Helm"
-    ## If including a plugin to alias wp login then set a path for alt and also set the config 
+    ## If including a plugin to alias wp login then set a path for alt and also set the config
     # NOTE: The value of alt enabled must be set as true or false
-    alt: 
+    alt:
       enabled: false
       # config: PATH-SETTING-IN-OPTIONS-TABLE
       # path: SOME-LOGIN-PATH
@@ -115,7 +130,7 @@ wordpress:
       Require all denied
       <Files ~ ".(xml|css|js|jpe?g|png|gif)$">
         Require all granted
-      </Files>  
+      </Files>
 
   ## Detailed list of mu values and plugins with versions
   ## mu_plugins_dir  'mu-plugins' maps to wp-content/mu-plugins
@@ -128,9 +143,9 @@ wordpress:
 
   ## Enable externally triggered cron if a cron plugin is installed
   # NOTE: mu_cron must be have the "enabled" value set as either true or false
-  mu_cron: 
-    enabled: false
   # See values-local.yaml.example for an example value
+  mu_cron:
+    enabled: false
 
 persistence:
   ## Enable the use of a persistent volume
@@ -164,7 +179,7 @@ ansibleVars:
   mode_0440: u+r-wxs,u+r-wxs,o-rwx
   mode_0600: u+rw-xs,g-rwxs,o-rwx
 
-  #Config Directory 
+  # Config Directory
   config_dir: /var/www
 
   ## Plugins
@@ -185,6 +200,7 @@ initImage:
 ingress:
   enabled: false
   annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50M
     # kubernetes.io/tls-acme: "true"
   path: /
 
@@ -252,9 +268,9 @@ database:
       socket=/opt/bitnami/mariadb/tmp/mysql.sock
 
 redis:
-# Set this to true to have a Redis container next to your WP. The WP will be
-# configured to connect to this Redis and `Redis Object Cache` plugin will be
-# installed as a conventional plugin.
+  # Set this to true to have a Redis container next to your WP. The WP will be
+  # configured to connect to this Redis and `Redis Object Cache` plugin will be
+  # installed as a conventional plugin.
   enabled: false
   #   # Set to true you want redis to have persistence:
   #   master:
@@ -279,11 +295,13 @@ ansibleSecrets: |
   DB_PASS: {{ .Values.database.db.password }}
   DB_PREFIX: {{ .Values.wordpress.config.db.prefix}}
   DB_USER: {{ .Values.database.db.user }}
-  LOCALE: {{ .Values.wordpress.site.locale }}
-  WP_CONTENT_DIR: {{ .Values.wordpress.wp_content.mount_path }}
+  LANGUAGES: {{ .Values.wordpress.site.languages }}
+  DEFAULT_LANG: {{ .Values.wordpress.site.default_language }}
+  WP_CONTENT_MOUNT: {{ .Values.wordpress.wp_content.mount_path }}
   WP_CONTENT_REPO_CONTENT_DIR: {{ .Values.git_repo.wp_content_dir }}
   WP_CONTENT_REPO_ENABLED: {{ .Values.git_repo.enabled }}
   WP_CONTENT_REPO_URL: https://{{ .Values.git_repo.token_user }}:{{ .Values.git_repo.token_key }}@{{ .Values.git_repo.url }}{{ .Values.git_repo.name }}
+  WP_OPENID_CONNECT_ROLE_MAPPING_ENABLED: {{ .Values.openid_connect_settings.role_mapping_enabled }}
   WP_CONTENT_REPO_VERSION: {{ .Values.git_repo.version }}
   WP_EMAIL: {{ .Values.wordpress.config.adm.email }}
   WP_PASS: {{ .Values.wordpress.config.adm.pssw }}
@@ -333,6 +351,8 @@ ansibleSecrets: |
     redirect_user_back: {{ .Values.openid_connect_settings.redirect_user_back }}
     scope: {{ .Values.openid_connect_settings.scope }}
     state_time_limit: {{ .Values.openid_connect_settings.state_time_limit }}
+    role_key: {{ .Values.openid_connect_settings.role_key }}
+
   WP_SALTS:
     AUTH_KEY: {{ .Values.wpSalts.AUTH_KEY | default ( randAlphaNum 32) }}
     AUTH_SALT: {{ .Values.wpSalts.AUTH_SALT | default ( randAlphaNum 32) }}
