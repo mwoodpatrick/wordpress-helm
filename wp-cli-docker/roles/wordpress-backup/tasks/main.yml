@@ -7,16 +7,20 @@
   changed_when: false
 
 - block:
-  - name: Create backups directory
-    file:
-      path: "{{ backup_dir }}"
-      state: directory
-  - name: Export WordPress database to file
-    shell:
-      wp {{ cli_args }} db export "{{ backup_dir }}/{{ backup_filename }}"
-    # Never overwrite an existing file.
-    args:
-      creates: "{{ backup_dir }}/{{ backup_filename }}"
+    - name: Create temporary backups directory
+      tempfile:
+        state: directory
+        suffix: backup
+      register: backup_dir
+    - name: Export WordPress database to file
+      shell:
+        wp {{ cli_args }} db export "{{ backup_dir.path }}/{{ backup_filename }}"
+    - name: Copy export to backup location
+      shell:
+        rsync -a "{{ backup_dir.path }}/{{ backup_filename }}" "{{ BACKUP_TARGET }}"
+    - name: Remove temporary backups directory
+      file:
+        state: absent
+        path: "{{ backup_dir.path }}/"
   vars:
-    backup_dir: "/mnt/backups/wp-db/{{ lookup('env', 'BACKUP_NAME') }}"
-    backup_filename: "wp-db-{{ lookup('env', 'BACKUP_NAME') }}-{{ date.stdout }}.sql"
+    backup_filename: "wp-db-{{ BACKUP_NAME }}-{{ date.stdout }}.sql"
