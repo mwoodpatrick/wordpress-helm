@@ -168,6 +168,9 @@ spec:
               mountPath: /var/local/ssh-private-key
             - name: ssh-known-hosts
               mountPath: /etc/ssh/ssh_known_hosts
+              # We need to set subPath so it does not create an ssh_known_hosts
+              # directory with an ssh_known_hosts file in it
+              subPath: ssh_known_hosts
             {{- end }}
         {{- end }}
     {{- with .Values.nodeSelector }}
