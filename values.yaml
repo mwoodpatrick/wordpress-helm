@@ -110,11 +110,12 @@ wordpress:
     # NOTE: The value of alt enabled must be set as true or false
     alt:
       enabled: false
-    # config: PATH-SETTING-IN-OPTIONS-TABLE
-    # path: SOME-LOGIN-PATH
+      # config: PATH-SETTING-IN-OPTIONS-TABLE
+      # path: SOME-LOGIN-PATH
     # Path used by the liveness and readiness probes to see if the site runs
-    # correctly. Defaults to `/wp-login.php`
+    # correctly.
     probe_path: /wp-login.php
+
   wp_content:
     ## The directory to mount the files placed in wp-content. You shouldn't have to
     ## change this.
@@ -281,11 +282,14 @@ redis:
 
 backup:
   enabled: false
+  intervalSeconds: 86400
 
 # Some of the variables configured above are put into a variable here, that's
 # completely stored as a b64encoded secret in Kubernetes. If you're not a
 # developer, never change this variable, only change the variables it points to.
 ansibleSecrets: |
+  BACKUP_NAME: {{ .Release.Name }}
+  BACKUP_TARGET: {{ .Values.backup.target }}
   DB_HOST: {{ .Release.Name }}-database
   DB_NAME: {{ .Values.database.db.name }}
   DB_PASS: {{ .Values.database.db.password }}
