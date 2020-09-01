@@ -149,6 +149,7 @@ wordpress:
   ## Enable externally triggered cron with a cron plugin
   # NOTE: mu_cron is disabled by default. Set `mu_cron: enabled: true` in your
   # values-local to enable mu_cron.
+  # NOTE: mu_plugins needs to be enabled to enable mu_cron!
   mu_cron:
     enabled: false
     name: Cron Control
@@ -160,8 +161,8 @@ wordpress:
     cronjob:
       # Every 3 minutes
       schedule: "*/3 * * * *"
-      # Set curl's insecure option if you use e.g. self-signed certificates
-      curlInsecure: false
+      # We use the internal DNS, so there is no TLS certificate
+      curlInsecure: true
       # If not set, nextcloud deployment one will be set
       # resources:
         # We usually recommend not to specify default resources and to leave this as a conscious
@@ -223,7 +224,8 @@ ansibleVars:
   ## Plugins
   wordpress_default_plugins: "[classic-editor]"
 
-wpSalts: {}
+wpSalts:
+  WP_CRON_CONTROL_SECRET: randomstring
 
 image:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress
@@ -402,7 +404,7 @@ ansibleSecrets: |
     SECURE_AUTH_KEY: {{ .Values.wpSalts.SECURE_AUTH_KEY | default ( randAlphaNum 32) }}
     SECURE_AUTH_SALT: {{ .Values.wpSalts.SECURE_AUTH_SALT | default ( randAlphaNum 32) }}
     WP_CACHE_KEY_SALT: {{ .Values.wpSalts.WP_CACHE_KEY_SALT | default ( randAlphaNum 32) }}
-    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET | default ( randAlphaNum 32 ) }}
+    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}
 
 ## Liveness and readiness probe values
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes

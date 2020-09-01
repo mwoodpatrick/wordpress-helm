@@ -77,8 +77,7 @@ wordpress:
        phpfile: block-bad-queries.php
 
   ## Enable externally triggered cron for an MU cron plugin
-  # NOTE: A value for mu_cron_enabled must be set. Select either true or false
-  # NOTE: This cron must be triggered by a call you have set up outside the server
+  # NOTE: mu_plugins *must* be enabled if you want to enable mu_cron
   mu_cron:
     enabled: false
 
