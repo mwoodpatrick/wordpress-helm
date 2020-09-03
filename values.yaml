@@ -154,9 +154,9 @@ wordpress:
     enabled: false
     name: Cron Control
     repo: https://github.com/Automattic/wp-cron-control.git
-    slug: cron-control
+    slug: wp-cron-control
     version: master
-    phpfile: cron-control.php
+    phpfile: wp-cron-control.php
     # Optional annotations to add to the cronjob object
     cronjob:
       # Every 3 minutes
