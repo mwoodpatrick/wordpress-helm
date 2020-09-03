@@ -39,7 +39,7 @@ spec:
           {{- end }}
           {{- end }}
           containers:
-            - name: {{ .Chart.Name }}
+            - name: {{ .Chart.Name }}-cron-caller
               image: "{{ default .Values.image.repository .Values.wordpress.mu_cron.cronjob.image.repository }}:{{ default .Values.image.tag .Values.wordpress.mu_cron.cronjob.image.tag }}"
               imagePullPolicy: {{ default .Values.image.pullPolicy .Values.wordpress.mu_cron.cronjob.image.pullPolicy }}
               command: [ "curl" ]
