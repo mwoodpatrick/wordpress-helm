@@ -80,6 +80,10 @@ wordpress:
   # NOTE: mu_plugins *must* be enabled if you want to enable mu_cron
   mu_cron:
     enabled: false
+    # # By default cron runs every 3 minutes, but you can change the schedule
+    # # here:
+    # cronjob:
+    #   schedule: "*/3 * * * *"
 
 # These settings make sense to overwrite if you want to use the OpenID connect
 # plugin
