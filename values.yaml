@@ -153,7 +153,7 @@ wordpress:
   mu_cron:
     enabled: false
     name: Cron Control
-    repo: https://github.com/Automattic/Cron-Control.git
+    repo: https://github.com/Automattic/wp-cron-control.git
     slug: cron-control
     version: master
     phpfile: cron-control.php
