@@ -81,12 +81,6 @@ openid_connect_settings:
 # running on the cluster to WordPress administrators
 enableServiceLinks: false
 
-# This disables information about other services to be pushed as environment
-# variables. We do this because these environment variables can be read through
-# the WordPress admin interface, so they can leak information about other things
-# running on the cluster to WordPress administrators
-enableServiceLinks: false
-
 wordpress:
   config:
     db:
@@ -147,8 +141,8 @@ wordpress:
   mu_plugins: {}
 
   ## Enable externally triggered cron with a cron plugin
-  # NOTE: mu_cron is disabled by default. Set `mu_cron: enabled: true` in your
-  # values-local to enable mu_cron.
+  # NOTE: mu_cron is disabled by default. Set `mu_cron.enabled` to `true` in
+  # your values-local to enable mu_cron.
   # NOTE: mu_plugins needs to be enabled to enable mu_cron!
   mu_cron:
     enabled: false
@@ -159,6 +153,10 @@ wordpress:
     phpfile: wp-cron-control.php
     # Optional annotations to add to the cronjob object
     cronjob:
+      image:
+        repository: curlimages/curl
+        tag: latest
+        pullPolicy: always
       # Every 3 minutes
       schedule: "*/3 * * * *"
       # We use the internal DNS, so there is no TLS certificate
@@ -184,7 +182,6 @@ wordpress:
       # ingress, the cronjob URL will be blocked from outside, so this variable
       # should not be very important to you.
       static_key: cronkey
-      image: {}
 
 persistence:
   ## Enable the use of a persistent volume

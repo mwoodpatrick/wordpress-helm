@@ -49,9 +49,11 @@ spec:
               {{- end }}
                 - "--fail"
                 - "-L"
-                - "http://{{ include "wordpress.fullname" . }}:8080{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}"
+                - "http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}"
+              {{- with .Values.wordpress.mu_cron.cronjob.resources }}
               resources:
-{{ toYaml (default .Values.resources .Values.wordpress.mu_cron.cronjob.resources) | indent 16 }}
+                {{ toYaml . | nindent 16 }}
+              {{- end }}
     {{- with (default .Values.nodeSelector .Values.wordpress.mu_cron.cronjob.nodeSelector) }}
           nodeSelector:
 {{ toYaml . | indent 12 }}
