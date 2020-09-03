@@ -16,10 +16,11 @@ metadata:
 {{- if $.Values.wordpress.mu_cron.enabled }}
     # Deny any traffic to the cronjob path that goes through ingress
     # (i.e. external traffic)
-    # nginx.org/server-snippets: |-
-    #   location {{ $.Values.wordpress.mu_cron.cronjob.path }}{
-    #       deny all;
-    #   }
+    nginx.ingress.kubernetes.io/server-snippet: |-
+      location {{ $.Values.wordpress.mu_cron.cronjob.path }} {
+          deny all;
+          return 403;
+      }
 {{- end }}
 {{- end }}
 spec:

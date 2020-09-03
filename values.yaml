@@ -179,7 +179,7 @@ wordpress:
       failedJobsHistoryLimit: 5
       successfulJobsHistoryLimit: 1
       # Path to the cronjob PHP file (gets appended to the wordpress URL)
-      path: wp-cron.php
+      path: /wp-cron.php
       # You can override this key for the cronjobs. If you don't change the
       # ingress, the cronjob URL will be blocked from outside, so this variable
       # should not be very important to you.
