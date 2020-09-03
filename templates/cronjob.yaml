@@ -9,7 +9,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
   annotations:
-{{ toYaml .Values.wordpress.mu_cron.cronjob.annotations | indent 4 }}
+    {{- toYaml .Values.wordpress.mu_cron.cronjob.annotations | nindent 4 }}
 spec:
   schedule: "{{ .Values.wordpress.mu_cron.cronjob.schedule }}"
   concurrencyPolicy: Forbid
