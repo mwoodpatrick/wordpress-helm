@@ -97,11 +97,10 @@ wordpress:
     # NOTE: Use a theme *slug* here
     theme: twentytwenty
     theme_fallback: twentytwenty
-    # 
-    # NOTE: Languages are ALL available languages. en_US is always installed but it is shown explicitly 
+    # NOTE: Languages are ALL available languages. en_US is always installed but it is shown explicitly
     # EXAMPLE: `languages: "[en_US,fi_FI,wo]"` would install US English, Finnish and Wolof
     # EXAMPLE: `default_language: fi_FI` would set Finnish for the core language
-    languages: "[en_US]" 
+    languages: "[en_US]"
     default_language: en_US
     version: 5.4.2
     url: "http://localhost"
@@ -141,11 +140,47 @@ wordpress:
   # See values-local.yaml.example for an example value
   mu_plugins: {}
 
-  ## Enable externally triggered cron if a cron plugin is installed
-  # NOTE: mu_cron must be have the "enabled" value set as either true or false
-  # See values-local.yaml.example for an example value
+  ## Enable externally triggered cron with a cron plugin
+  # NOTE: mu_cron is disabled by default. Set `mu_cron.enabled` to `true` in
+  # your values-local to enable mu_cron.
+  # NOTE: mu_plugins needs to be enabled to enable mu_cron!
   mu_cron:
     enabled: false
+    name: Cron Control
+    repo: https://github.com/Automattic/wp-cron-control.git
+    slug: wp-cron-control
+    version: cecdec276f086aafb6765ea77ce8d2ce0948e01c
+    phpfile: wp-cron-control.php
+    # Optional annotations to add to the cronjob object
+    cronjob:
+      image:
+        repository: curlimages/curl
+        tag: latest
+        pullPolicy: Always
+      # Every 3 minutes
+      schedule: "*/3 * * * *"
+      # We use the internal DNS, so there is no TLS certificate
+      curlInsecure: true
+      # resources:
+        # We usually recommend not to specify default resources and to leave this as a conscious
+        # choice for the user. This also increases chances charts run on environments with little
+        # resources, such as Minikube. If you do want to specify resources, uncomment the following
+        # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+        # limits:
+        #  cpu: 100m
+        #  memory: 128Mi
+        # requests:
+        #  cpu: 100m
+        #  memory: 128Mi
+      annotations: {}
+      failedJobsHistoryLimit: 5
+      successfulJobsHistoryLimit: 1
+      # Path to the cronjob PHP file (gets appended to the wordpress URL)
+      path: /wp-cron.php
+      # You can override this key for the cronjobs. If you don't change the
+      # ingress, the cronjob URL will be blocked from outside, so this variable
+      # should not be very important to you.
+      static_key: cronkey
 
 persistence:
   ## Enable the use of a persistent volume
@@ -185,12 +220,14 @@ ansibleVars:
   ## Plugins
   wordpress_default_plugins: "[classic-editor]"
 
-wpSalts: {}
+wpSalts:
+  WP_CRON_CONTROL_SECRET: randomstring
 
 image:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress
   tag: 0.1.3
   pullPolicy: Always
+  pullSecrets: []
 
 initImage:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress-cli-ansible
@@ -363,7 +400,7 @@ ansibleSecrets: |
     SECURE_AUTH_KEY: {{ .Values.wpSalts.SECURE_AUTH_KEY | default ( randAlphaNum 32) }}
     SECURE_AUTH_SALT: {{ .Values.wpSalts.SECURE_AUTH_SALT | default ( randAlphaNum 32) }}
     WP_CACHE_KEY_SALT: {{ .Values.wpSalts.WP_CACHE_KEY_SALT | default ( randAlphaNum 32) }}
-    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET | default ( randAlphaNum 32 ) }}
+    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}
 
 ## Liveness and readiness probe values
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes

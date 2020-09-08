@@ -1,0 +1,69 @@
+{{- if .Values.wordpress.mu_cron.enabled }}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ template "wordpress.fullname" . }}
+  labels:
+    app: {{ include "wordpress.name" . }}
+    chart: {{ include "wordpress.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    {{- toYaml .Values.wordpress.mu_cron.cronjob.annotations | nindent 4 }}
+spec:
+  schedule: "{{ .Values.wordpress.mu_cron.cronjob.schedule }}"
+  concurrencyPolicy: Forbid
+  {{- with .Values.wordpress.mu_cron.cronjob.failedJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ . }}
+  {{- end }}
+  {{- with .Values.wordpress.mu_cron.cronjob.successfulJobsHistoryLimit }}
+  successfulJobsHistoryLimit: {{ . }}
+  {{- end }}
+  jobTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "wordpress.name" . }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: {{ include "wordpress.name" . }}
+            app.kubernetes.io/managed-by: {{ .Release.Service }}
+        spec:
+          restartPolicy: Never
+          {{- if (default .Values.image.pullSecrets .Values.wordpress.mu_cron.cronjob.image.pullSecrets) }}
+          imagePullSecrets:
+          {{- range (default .Values.image.pullSecrets .Values.wordpress.mu_cron.cronjob.image.pullSecrets) }}
+            - name: {{ . }}
+          {{- end }}
+          {{- end }}
+          containers:
+            - name: {{ .Chart.Name }}-cron-caller
+              image: "{{ default .Values.image.repository .Values.wordpress.mu_cron.cronjob.image.repository }}:{{ default .Values.image.tag .Values.wordpress.mu_cron.cronjob.image.tag }}"
+              imagePullPolicy: {{ default .Values.image.pullPolicy .Values.wordpress.mu_cron.cronjob.image.pullPolicy }}
+              command: [ "curl" ]
+              args:
+              {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }}
+                - "-k"
+              {{- end }}
+                - "--fail"
+                - "-L"
+                - "http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}"
+              {{- with .Values.wordpress.mu_cron.cronjob.resources }}
+              resources:
+                {{ toYaml . | nindent 16 }}
+              {{- end }}
+    {{- with (default .Values.nodeSelector .Values.wordpress.mu_cron.cronjob.nodeSelector) }}
+          nodeSelector:
+{{ toYaml . | indent 12 }}
+    {{- end }}
+    {{- with (default .Values.affinity .Values.wordpress.mu_cron.cronjob.affinity) }}
+          affinity:
+{{ toYaml . | indent 12 }}
+    {{- end }}
+    {{- with (default .Values.tolerations .Values.wordpress.mu_cron.cronjob.tolerations) }}
+          tolerations:
+{{ toYaml . | indent 12 }}:
+    {{- end }}
+{{- end }}

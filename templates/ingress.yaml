@@ -13,6 +13,15 @@ metadata:
 {{- with .Values.ingress.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
+{{- if $.Values.wordpress.mu_cron.enabled }}
+    # Deny any traffic to the cronjob path that goes through ingress
+    # (i.e. external traffic)
+    nginx.ingress.kubernetes.io/server-snippet: |-
+      location {{ $.Values.wordpress.mu_cron.cronjob.path }} {
+          deny all;
+          return 403;
+      }
+{{- end }}
 {{- end }}
 spec:
 {{- if .Values.ingress.tls }}
