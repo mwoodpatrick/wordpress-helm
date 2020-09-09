@@ -114,6 +114,8 @@ wordpress:
     # Path used by the liveness and readiness probes to see if the site runs
     # correctly.
     probe_path: /wp-login.php
+    # Set to true to set WP_DEBUG on in the configuration
+    debug: false
 
   wp_content:
     ## The directory to mount the files placed in wp-content. You shouldn't have to
@@ -340,6 +342,7 @@ ansibleSecrets: |
   WP_CONTENT_REPO_URL: https://{{ .Values.git_repo.token_user }}:{{ .Values.git_repo.token_key }}@{{ .Values.git_repo.url }}{{ .Values.git_repo.name }}
   WP_OPENID_CONNECT_ROLE_MAPPING_ENABLED: {{ .Values.openid_connect_settings.role_mapping_enabled }}
   WP_CONTENT_REPO_VERSION: {{ .Values.git_repo.version }}
+  WP_DEBUG: {{ .Values.wordpress.site.debug }}
   WP_EMAIL: {{ .Values.wordpress.config.adm.email }}
   WP_PASS: {{ .Values.wordpress.config.adm.pssw }}
   WP_REDIS_ENABLED: {{ .Values.redis.enabled }}

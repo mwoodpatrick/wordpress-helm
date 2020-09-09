@@ -48,6 +48,8 @@ wordpress:
     # # correctly. Defaults to `/wp-login.php`. Be sure to make this the same as
     # # alt_path if you use it!
     # probe_path: /wp-login.php
+    # Turn on WordPress' debug mode
+    # debug: true
   wp_content:
     # The directory to mount the files placed in wp-content. You shouldn't have to
     # change this.

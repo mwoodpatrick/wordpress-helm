@@ -14,7 +14,13 @@
    ```
    $ helm repo add bitnami https://charts.bitnami.com/bitnami
    ```
+5. The chart assumes you have nginx ingress running in IP range `10.0.0.0/8`. If
+   you do, the access logs will show remote IP addresses from the
+   `X-Forwarded-For` header. Otherwise, the proxy IP address is shown in the
+   access logs.
 
+   If you don't use `nginx` ingress and you enable `mu_cron`, make sure to block
+   the path from `wordpress.mu_cron.cronjob.path` from outside traffic.
 
 ### Start WordPress on Kubernetes
 
