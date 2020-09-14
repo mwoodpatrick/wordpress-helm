@@ -135,9 +135,21 @@
 
 - name: list themes
   shell: wp {{ cli_args }} theme list
+  register: lt
 
-- name: list theme dir
-  shell: ls -l /var/wp-content-mount/themes
+- name: debug list themes
+  debug:
+    var: lt
+
+- name: debug list theme dir
+  shell: ls -l /var/www/wp-content-mount/themes
+  register: lslt
+
+  - name: debug list themes
+  debug:
+    var: lslt
+
+
 
 - name: Themes activate block
   block:
