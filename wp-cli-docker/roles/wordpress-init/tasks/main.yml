@@ -127,11 +127,17 @@
 
 # Themes
 
-- name: Themes install
+- name: Themes install wordpress
   shell: wp {{ cli_args }} core language install "{{ theme }}"
   loop: "{{ WP_THEMES_INSTALL }}"
   loop_control:
     loop_var: theme
+
+- name: Themes install external repo
+  shell: curl -L https://downloads.wordpress.org/plugin/{{ wp_mu_plugin.key }}.{{ wp_mu_plugin.value.version}}.zip | unzip -q -o -d {{ WP_CONTENT_MOUNT }}/{{ WP_MU_PLUGINS_DIR }} -
+  loop: "{{ WP_MU_PLUGINS | dict2items }}"
+  loop_control:
+    loop_var: 
 
 - name: list themes
   shell: wp {{ cli_args }} theme list

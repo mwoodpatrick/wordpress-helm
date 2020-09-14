@@ -63,14 +63,27 @@ wordpress:
       <Files ~ ".(woff|xml|css|js|jpe?g|png|gif)$">
         Require all granted
       </Files>
-
+  
   themes:
-    # NOTE: Use theme *slugs* here
-    # Install includes all parent, child, default, active and fallback themes 
-    install: "[twentytwenty,twentynineteen]"
-    active: twentytwenty
-    # A fallback theme will be used if there is a repository or availability error 
-    fallback: twentytwenty 
+    # Install all parent, child, default, active and fallback themes 
+    # NOTE: Use theme *slugs* 
+    twentytwenty:
+      version: []
+    
+    #Set a theme version in quotes
+    #twentynineteen:
+    #  version: "1.7"
+    
+    # NOTE: Include a url to fetch a theme from a repository 
+    #newspack-theme:
+    #  version: "v1.18.0"
+    #  url: https://github.com/Automattic/newspack-theme/releases/download/
+  
+  # If using a child theme then ensure parent is listed above and child is set as active 
+  theme_active: twentytwenty
+  # A fallback theme will be used if there is a repository or availability error 
+  theme_fallback: twentytwenty 
+
 
   ## mu_plugins are installed as hidden and cannot be updated from the UI
   ## mu_dir  'mu-plugins' maps to wp-content/mu-plugins

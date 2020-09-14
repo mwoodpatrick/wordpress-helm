@@ -114,13 +114,25 @@ wordpress:
     # Set to true to set WP_DEBUG on in the configuration
     debug: false
 
+
+  # Install includes all parent, child, default, active and fallback themes 
+  theme_active: twentytwenty
+  # A fallback theme will be used if there is a repository or availability error 
+  theme_fallback: twentytwenty 
+  
   themes:
     # NOTE: Use theme *slugs* here
-    # Install includes all parent, child, default, active and fallback themes 
-    install: "[twentytwenty,twentynineteen]"
-    active: twentytwenty
-    # A fallback theme will be used if there is a repository or availability error 
-    fallback: twentytwenty 
+    twentytwenty:
+      version: lastest
+      url: []
+    twentynineteen:
+      version: lastest
+      url: []
+    newspack-theme:
+      version: "v1.18.0"
+      url: https://github.com/Automattic/newspack-theme/releases/download/
+    
+
 
   wp_content:
     ## The directory to mount the files placed in wp-content. You shouldn't have to
@@ -353,9 +365,9 @@ ansibleSecrets: |
   WP_REDIS_ENABLED: {{ .Values.redis.enabled }}
   WP_REDIS_HOST: {{ .Release.Name }}-redis-master
   WP_REDIS_PASSWORD: {{ .Values.redis.password | default ( randAlphaNum 15 ) }}
-  WP_THEMES_ACTIVE: {{ .Values.wordpress.themes.active }}
-  WP_THEMES_INSTALL: {{ .Values.wordpress.themes.install }}
-  WP_THEMES_FALLBACK: {{ .Values.wordpress.themes.fallback }}
+  WP_THEME_ACTIVE: {{ .Values.wordpress.theme_active }}
+  WP_THEMES: {{ .Values.wordpress.mu_plugins | toJson }}
+  WP_THEME_FALLBACK: {{ .Values.wordpress.theme_fallback }}
   WP_TITLE: {{ .Values.wordpress.site.title }}
   WP_UPLOAD_DIR: {{ .Values.wordpress.wp_upload.mount_path }}
   WP_URL: {{ .Values.wordpress.site.url }}
