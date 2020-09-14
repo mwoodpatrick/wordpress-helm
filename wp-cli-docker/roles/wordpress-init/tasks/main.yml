@@ -125,22 +125,29 @@
 - name: Block pings
   shell: wp {{ cli_args }} option set default_ping_status closed
 
-# Theme
-- name: Theme activate block
+# Themes
+
+- name: Themes install
+  shell: wp {{ cli_args }} core language install "{{ theme }}"
+  loop: "{{ WP_THEMES_INSTALL }}"
+  loop_control:
+    loop_var: theme
+
+- name: Themes activate block
   block:
     - debug:
-        msg: "Trying the configured theme - {{ WP_THEME }}"
+        msg: "Trying the configured theme - {{ WP_THEMES_ACTIVE }}"
     - name: Activate theme if exists in wp-content-repo
-      shell: wp {{ cli_args }} theme activate "{{ WP_THEME }}"
+      shell: wp {{ cli_args }} theme activate "{{ WP_THEMES_ACTIVE }}"
     - debug:
         msg: 'Success'
   rescue:
     - debug:
         msg: 'Local theme does not exist or error'
     - name: Pull the default theme set in values.yaml and then activate
-      shell: wp {{ cli_args }} theme install "{{ WP_THEME_FALLBACK }}" --activate
+      shell: wp {{ cli_args }} theme install "{{ WP_THEMES_FALLBACK }}" --activate
     - debug:
-        msg: "Fallback theme {{ WP_THEME_FALLBACK }} has been installed"
+        msg: "Fallback theme {{ WP_THEMES_FALLBACK }} has been installed"
 
 # Plugins
 - name: Install WordPress plugins that are activated

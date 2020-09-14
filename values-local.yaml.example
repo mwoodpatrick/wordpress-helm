@@ -24,8 +24,6 @@ wordpress:
       usid: admin
       pssw: CHANGE-THIS-PASSWORD
   site:
-    # NOTE: Use a theme *slug* here
-    theme: twentynineteen
     # NOTE: Make sure you use underscore and that the localisation is in full caps
     default_language: en_US
     # NOTE: Optionally set a Wordpress version number to override the default
@@ -65,6 +63,14 @@ wordpress:
       <Files ~ ".(woff|xml|css|js|jpe?g|png|gif)$">
         Require all granted
       </Files>
+
+  themes:
+    # NOTE: Use theme *slugs* here
+    # Install includes all parent, child, default, active and fallback themes 
+    install: "[twentytwenty,twentynineteen]"
+    active: twentytwenty
+    # A fallback theme will be used if there is a repository or availability error 
+    fallback: twentytwenty 
 
   ## mu_plugins are installed as hidden and cannot be updated from the UI
   ## mu_dir  'mu-plugins' maps to wp-content/mu-plugins
