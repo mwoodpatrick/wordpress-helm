@@ -128,28 +128,10 @@
 # Themes
 
 - name: Themes install
-  shell: wp {{ cli_args }} core language install "{{ theme }}"
+  shell: wp {{ cli_args }} plugin install "{{ theme }}"
   loop: "{{ WP_THEMES_INSTALL }}"
   loop_control:
     loop_var: theme
-
-- name: list themes
-  shell: wp {{ cli_args }} theme list
-  register: lt
-
-- name: debug list themes
-  debug:
-    var: lt
-
-- name: debug list theme dir
-  shell: ls -l /var/www/wp-content-mount/themes
-  register: lslt
-
-- name: debug list themes
-  debug:
-    var: lslt
-
-
 
 - name: Themes activate block
   block:
