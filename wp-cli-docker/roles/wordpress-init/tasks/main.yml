@@ -145,7 +145,7 @@
   shell: ls -l /var/www/wp-content-mount/themes
   register: lslt
 
-  - name: debug list themes
+- name: debug list themes
   debug:
     var: lslt
 
