@@ -217,6 +217,9 @@ ansibleVars:
   mode_0750: u+rwx-s,g+rx-ws,o-rwx
   mode_0640: u+rw-sx,g+r-wxs,o-rwx
   mode_0440: u+r-wxs,u+r-wxs,o-rwx
+  mode_0644: u+rw-sx,g+r-wxs,o+r-wx
+  mode_0600: u+rw-xs,g-rwxs,o-rwx
+
 
   # Config Directory
   config_dir: /var/www
