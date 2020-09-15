@@ -131,6 +131,12 @@ wordpress:
         Require all granted
       </Files>
 
+  ## Default permissions given files and directories by Wordpress
+  ## Here they are set as strong and writeable: 750 and 640
+  permissions:
+    directory_mode: 0750
+    files_mode: 0640
+
   ## Detailed list of mu values and plugins with versions
   ## mu_plugins_dir  'mu-plugins' maps to wp-content/mu-plugins
   ## mu_plugins are installed as hidden and cannot be updated from the UI
@@ -207,12 +213,10 @@ ansibleVars:
   dbcollate: utf8mb4_unicode_ci
   cli_args: "--path={{ wordpress_homedir }}"
 
-  ## Perms
+  ## Permissions for Startup and for Reset
   mode_0750: u+rwx-s,g+rx-ws,o-rwx
   mode_0640: u+rw-sx,g+r-wxs,o-rwx
-  mode_0644: u+rw-sx,g+r-wxs,o+r-wx
   mode_0440: u+r-wxs,u+r-wxs,o-rwx
-  mode_0600: u+rw-xs,g-rwxs,o-rwx
 
   # Config Directory
   config_dir: /var/www
@@ -355,6 +359,8 @@ ansibleSecrets: |
   WP_ALT_ENABLED: {{ .Values.wordpress.site.alt.enabled }}
   WP_ALT_CONFIG: {{ .Values.wordpress.site.alt.config }}
   WP_ALT_PATH: {{ .Values.wordpress.site.alt.path }}
+  WP_DIR_MODE: {{ Values.wordpress.permissions.directory_mode }}
+  WP_FILES_MODE: {{ Values.wordpress.permissins.files_mode }}
   WP_MU_PLUGINS_ENABLED: {{ .Values.wordpress.mu_plugins_enabled }}
   WP_MU_PLUGINS_DIR: {{ .Values.wordpress.mu_plugins_dir }}
   WP_MU_PLUGINS: {{ .Values.wordpress.mu_plugins | toJson }}

@@ -64,6 +64,13 @@ wordpress:
         Require all granted
       </Files>
 
+  ## Set default permissions given to files and directories by Wordpress
+  ## Strong and writeable defaults are 750 and 640
+  #permissions:
+  #  directory_mode: 0750
+  #  files_mode: 0640
+
+
   ## mu_plugins are installed as hidden and cannot be updated from the UI
   ## mu_dir  'mu-plugins' maps to wp-content/mu-plugins
   ## mu_plugins supplies a detailed list of mu values and plugins with versions
