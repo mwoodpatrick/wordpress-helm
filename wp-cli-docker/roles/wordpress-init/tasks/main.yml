@@ -127,35 +127,11 @@
 
 # Themes
 
-- name: Themes install wordpress
-  shell: wp {{ cli_args }} core language install "{{ theme }}"
+- name: Themes install 
+  shell: wp {{ cli_args }} theme install {{ theme }}
   loop: "{{ WP_THEMES_INSTALL }}"
   loop_control:
     loop_var: theme
-
-- name: Themes install external repo
-  shell: curl -L https://downloads.wordpress.org/plugin/{{ wp_mu_plugin.key }}.{{ wp_mu_plugin.value.version}}.zip | unzip -q -o -d {{ WP_CONTENT_MOUNT }}/{{ WP_MU_PLUGINS_DIR }} -
-  loop: "{{ WP_MU_PLUGINS | dict2items }}"
-  loop_control:
-    loop_var: 
-
-- name: list themes
-  shell: wp {{ cli_args }} theme list
-  register: lt
-
-- name: debug list themes
-  debug:
-    var: lt
-
-- name: debug list theme dir
-  shell: ls -l /var/www/wp-content-mount/themes
-  register: lslt
-
-- name: debug list themes
-  debug:
-    var: lslt
-
-
 
 - name: Themes activate block
   block:

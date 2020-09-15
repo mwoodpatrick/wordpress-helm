@@ -48,6 +48,14 @@ wordpress:
     # probe_path: /wp-login.php
     # Turn on WordPress' debug mode
     # debug: true
+
+  # Install includes all parent, child, default, active and fallback themes 
+  # NOTE: Use theme *slugs* here
+  themes_install: "[twentytwenty,twentynineteen]"
+  themes_active: twentytwenty
+  # A fallback theme will be used if there is a repository or availability error 
+  themes_fallback: twentytwenty 
+
   wp_content:
     # The directory to mount the files placed in wp-content. You shouldn't have to
     # change this.
@@ -64,27 +72,6 @@ wordpress:
         Require all granted
       </Files>
   
-  themes:
-    # Install all parent, child, default, active and fallback themes 
-    # NOTE: Use theme *slugs* 
-    twentytwenty:
-      version: []
-    
-    #Set a theme version in quotes
-    #twentynineteen:
-    #  version: "1.7"
-    
-    # NOTE: Include a url to fetch a theme from a repository 
-    #newspack-theme:
-    #  version: "v1.18.0"
-    #  url: https://github.com/Automattic/newspack-theme/releases/download/
-  
-  # If using a child theme then ensure parent is listed above and child is set as active 
-  theme_active: twentytwenty
-  # A fallback theme will be used if there is a repository or availability error 
-  theme_fallback: twentytwenty 
-
-
   ## mu_plugins are installed as hidden and cannot be updated from the UI
   ## mu_dir  'mu-plugins' maps to wp-content/mu-plugins
   ## mu_plugins supplies a detailed list of mu values and plugins with versions
