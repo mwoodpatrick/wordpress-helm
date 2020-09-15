@@ -363,7 +363,7 @@ ansibleSecrets: |
   WP_ALT_CONFIG: {{ .Values.wordpress.site.alt.config }}
   WP_ALT_PATH: {{ .Values.wordpress.site.alt.path }}
   WP_DIR_MODE: {{ .Values.wordpress.permissions.directory_mode }}
-  WP_FILES_MODE: {{ .Values.wordpress.permissins.files_mode }}
+  WP_FILES_MODE: {{ .Values.wordpress.permissions.files_mode }}
   WP_MU_PLUGINS_ENABLED: {{ .Values.wordpress.mu_plugins_enabled }}
   WP_MU_PLUGINS_DIR: {{ .Values.wordpress.mu_plugins_dir }}
   WP_MU_PLUGINS: {{ .Values.wordpress.mu_plugins | toJson }}
