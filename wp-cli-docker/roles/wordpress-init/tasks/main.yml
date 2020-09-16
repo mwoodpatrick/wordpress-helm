@@ -107,6 +107,12 @@
   loop_control:
     loop_var: wp_salt
 
+- name: File permissions set default
+  shell: wp {{ cli_args }} config set  'FS_CHMOD_DIR'  {{ WP_DIR_MODE }}  --raw --type=constant
+
+- name: Directory permissions set default
+  shell: wp {{ cli_args }} config set  'FS_CHMOD_FILE' {{ WP_FILES_MODE }}  --raw --type=constant
+
 - name: Copy htaccess config file
   template:
     src: templates/htaccess
