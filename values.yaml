@@ -303,20 +303,20 @@ database:
       [manager]
       port=3306
       socket=/opt/bitnami/mariadb/tmp/mysql.sock
-
 redis:
-  # Set this to true to have a Redis container next to your WP. The WP will be
+  # Set redis.enabled to true to have a Redis container next to your WP. The WP will be
   # configured to connect to this Redis and `Redis Object Cache` plugin will be
   # installed as a conventional plugin.
   enabled: false
-  #   # Set to true you want redis to have persistence:
-  #   master:
-  #     persistence:
-  #       enabled: false
-  #     disableCommands: []
-  #  # Set to true to have a master and a slave redis. Not necessary for caching
-  #   cluster:
-  #     enabled: false
+    master:
+      persistence:
+        # Set persistence to true you want redis to have persistence
+        enabled: false
+      # disableCommand is set as null to enable FLUSHALL and FLUSHDB and allow cache purge and flush  
+      disableCommands: []
+  cluster:
+  # Set redis.cluster.enabled as true to have a master and a slave redis. Not necessary for caching
+    enabled: false
 
 backup:
   enabled: false
