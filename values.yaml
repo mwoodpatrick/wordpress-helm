@@ -181,8 +181,10 @@ wordpress:
         #  cpu: 100m
         #  memory: 128Mi
       annotations: {}
-      failedJobsHistoryLimit: 5
+      failedJobsHistoryLimit: 3
       successfulJobsHistoryLimit: 1
+      # Maximum number of times a failing Job is retried.
+      backoffLimit: 1
       # Path to the cronjob PHP file (gets appended to the wordpress URL)
       path: /wp-cron.php
       # You can override this key for the cronjobs. If you don't change the
@@ -317,12 +319,12 @@ redis:
   # configured to connect to this Redis and `Redis Object Cache` plugin will be
   # installed as a conventional plugin.
   enabled: false
-    master:
-      persistence:
-        # Set persistence to true you want redis to have persistence
-        enabled: false
-      # disableCommand is set as null to enable FLUSHALL and FLUSHDB and allow cache purge and flush  
-      disableCommands: []
+  master:
+    persistence:
+      # Set persistence to true you want redis to have persistence
+      enabled: false
+    # disableCommand is set as null to enable FLUSHALL and FLUSHDB and allow cache purge and flush
+    disableCommands: []
   cluster:
   # Set redis.cluster.enabled as true to have a master and a slave redis. Not necessary for caching
     enabled: false
