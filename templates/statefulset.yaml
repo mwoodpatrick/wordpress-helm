@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -35,6 +36,7 @@ spec:
       imagePullSecrets:
         - name: {{ .Values.initImage.imagePullSecretName }}
       {{- end }}
+      enableServiceLinks: {{ .Values.enableServiceLinks }}
       initContainers:
         - name: init-{{ .Chart.Name }}
           image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
@@ -64,9 +66,6 @@ spec:
               value: {{ .Values.database.db.name }}
             - name: WORDPRESS_TABLE_PREFIX
               value: {{ .Values.wordPressTablePrefix }}
-            # TODO: Remove this debug
-            - name: WORDPRESS_DEBUG
-              value: "true"
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -98,6 +97,7 @@ spec:
             successThreshold: {{ .Values.readinessProbe.successThreshold }}
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
           {{- end }}
+
           env:
             - name: WORDPRESS_DB_HOST
               value: {{ .Release.Name }}-database
@@ -112,9 +112,6 @@ spec:
               value: {{ .Values.database.db.name }}
             - name: WORDPRESS_TABLE_PREFIX
               value: {{ .Values.wordPressTablePrefix }}
-            # TODO: Remove this debug
-            - name: WORDPRESS_DEBUG
-              value: "true"
           # readinessProbe:
           #   httpGet:
           #     path: /
@@ -151,8 +148,9 @@ spec:
               value: {{ .Values.database.db.name }}
             - name: WORDPRESS_TABLE_PREFIX
               value: {{ .Values.wordPressTablePrefix }}
-            - name: BACKUP_NAME
-              value: {{ .Release.Name }}
+            - name: BACKUP_INTERVAL_SECONDS
+              # A day's worth of seconds.
+              value: {{ .Values.backup.intervalSeconds | quote }}
           volumeMounts:
             - name: {{ include "wordpress.name" . }}-wp-storage
               mountPath: /var/www/html
@@ -165,8 +163,15 @@ spec:
               subPath: main.yml
             - name: ansible-secrets
               mountPath: /var/local/ansible/secrets
-            - name: {{ include "wordpress.name" . }}-backups
-              mountPath: /mnt/backups
+            {{- if .Values.backup.sshPrivateKey }}
+            - name: ssh-private-key
+              mountPath: /var/local/ssh-private-key
+            - name: ssh-known-hosts
+              mountPath: /etc/ssh/ssh_known_hosts
+              # We need to set subPath so it does not create an ssh_known_hosts
+              # directory with an ssh_known_hosts file in it
+              subPath: ssh_known_hosts
+            {{- end }}
         {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -195,18 +200,26 @@ spec:
         - name: ansible-secrets
           secret:
             secretName: {{ include "wordpress.fullname" . }}-ansible-secrets
-            # TODO: this might not be necessary
             items:
               - key: secret-vars.yaml
                 path: secret-vars.yaml
+        {{- if .Values.backup.sshPrivateKey }}
+        - name: ssh-private-key
+          secret:
+            secretName: {{ include "wordpress.fullname" . }}-ansible-secrets
+            items:
+              - key: ssh-private-key
+                path: ssh-private-key
+        - name: ssh-known-hosts
+          secret:
+            secretName: {{ include "wordpress.fullname" . }}-ansible-secrets
+            items:
+              - key: ssh-known-hosts
+                path: ssh_known_hosts
+        {{- end }}
         - name: ansible-vars
           configMap:
             name: {{ include "wordpress.fullname" . }}-ansible-vars
         - name: htuploads
           configMap:
             name: {{ include "wordpress.fullname" . }}-htuploads
-        {{- if .Values.backup.enabled }}
-        - name: {{ include "wordpress.name" . }}-backups
-          persistentVolumeClaim:
-            claimName: {{ .Values.backup.pvcName }}
-        {{- end }}

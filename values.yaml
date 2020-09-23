@@ -75,6 +75,11 @@ openid_connect_settings:
   # values: roles or groups
   role_key: "roles"
 
+# This disables information about other services to be pushed as environment
+# variables. We do this because these environment variables can be read through
+# the WordPress admin interface, so they can leak information about other things
+# running on the cluster to WordPress administrators
+enableServiceLinks: false
 
 wordpress:
   config:
@@ -92,11 +97,10 @@ wordpress:
     # NOTE: Use a theme *slug* here
     theme: twentytwenty
     theme_fallback: twentytwenty
-    # 
-    # NOTE: Languages are ALL available languages. en_US is always installed but it is shown explicitly 
+    # NOTE: Languages are ALL available languages. en_US is always installed but it is shown explicitly
     # EXAMPLE: `languages: "[en_US,fi_FI,wo]"` would install US English, Finnish and Wolof
     # EXAMPLE: `default_language: fi_FI` would set Finnish for the core language
-    languages: "[en_US]" 
+    languages: "[en_US]"
     default_language: en_US
     version: 5.4.2
     url: "http://localhost"
@@ -105,11 +109,12 @@ wordpress:
     # NOTE: The value of alt enabled must be set as true or false
     alt:
       enabled: false
-    # config: PATH-SETTING-IN-OPTIONS-TABLE
-    # path: SOME-LOGIN-PATH
+      # config: PATH-SETTING-IN-OPTIONS-TABLE
+      # path: SOME-LOGIN-PATH
     # Path used by the liveness and readiness probes to see if the site runs
-    # correctly. Defaults to `/wp-login.php`
+    # correctly.
     probe_path: /wp-login.php
+
   wp_content:
     ## The directory to mount the files placed in wp-content. You shouldn't have to
     ## change this.
@@ -135,11 +140,47 @@ wordpress:
   # See values-local.yaml.example for an example value
   mu_plugins: {}
 
-  ## Enable externally triggered cron if a cron plugin is installed
-  # NOTE: mu_cron must be have the "enabled" value set as either true or false
-  # See values-local.yaml.example for an example value
+  ## Enable externally triggered cron with a cron plugin
+  # NOTE: mu_cron is disabled by default. Set `mu_cron.enabled` to `true` in
+  # your values-local to enable mu_cron.
+  # NOTE: mu_plugins needs to be enabled to enable mu_cron!
   mu_cron:
     enabled: false
+    name: Cron Control
+    repo: https://github.com/Automattic/wp-cron-control.git
+    slug: wp-cron-control
+    version: cecdec276f086aafb6765ea77ce8d2ce0948e01c
+    phpfile: wp-cron-control.php
+    # Optional annotations to add to the cronjob object
+    cronjob:
+      image:
+        repository: curlimages/curl
+        tag: latest
+        pullPolicy: Always
+      # Every 3 minutes
+      schedule: "*/3 * * * *"
+      # We use the internal DNS, so there is no TLS certificate
+      curlInsecure: true
+      # resources:
+        # We usually recommend not to specify default resources and to leave this as a conscious
+        # choice for the user. This also increases chances charts run on environments with little
+        # resources, such as Minikube. If you do want to specify resources, uncomment the following
+        # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+        # limits:
+        #  cpu: 100m
+        #  memory: 128Mi
+        # requests:
+        #  cpu: 100m
+        #  memory: 128Mi
+      annotations: {}
+      failedJobsHistoryLimit: 5
+      successfulJobsHistoryLimit: 1
+      # Path to the cronjob PHP file (gets appended to the wordpress URL)
+      path: /wp-cron.php
+      # You can override this key for the cronjobs. If you don't change the
+      # ingress, the cronjob URL will be blocked from outside, so this variable
+      # should not be very important to you.
+      static_key: cronkey
 
 persistence:
   ## Enable the use of a persistent volume
@@ -179,12 +220,14 @@ ansibleVars:
   ## Plugins
   wordpress_default_plugins: "[classic-editor]"
 
-wpSalts: {}
+wpSalts:
+  WP_CRON_CONTROL_SECRET: randomstring
 
 image:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress
   tag: 0.1.3
   pullPolicy: Always
+  pullSecrets: []
 
 initImage:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress-cli-ansible
@@ -277,11 +320,14 @@ redis:
 
 backup:
   enabled: false
+  intervalSeconds: 86400
 
 # Some of the variables configured above are put into a variable here, that's
 # completely stored as a b64encoded secret in Kubernetes. If you're not a
 # developer, never change this variable, only change the variables it points to.
 ansibleSecrets: |
+  BACKUP_NAME: {{ .Release.Name }}
+  BACKUP_TARGET: {{ .Values.backup.target }}
   DB_HOST: {{ .Release.Name }}-database
   DB_NAME: {{ .Values.database.db.name }}
   DB_PASS: {{ .Values.database.db.password }}
@@ -355,7 +401,7 @@ ansibleSecrets: |
     SECURE_AUTH_KEY: {{ .Values.wpSalts.SECURE_AUTH_KEY | default ( randAlphaNum 32) }}
     SECURE_AUTH_SALT: {{ .Values.wpSalts.SECURE_AUTH_SALT | default ( randAlphaNum 32) }}
     WP_CACHE_KEY_SALT: {{ .Values.wpSalts.WP_CACHE_KEY_SALT | default ( randAlphaNum 32) }}
-    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET | default ( randAlphaNum 32 ) }}
+    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}
 
 ## Liveness and readiness probe values
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes

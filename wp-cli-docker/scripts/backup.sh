@@ -1,14 +1,12 @@
 #!/bin/bash
 
 backupCommand="ansible-playbook backup.yml -e @secrets/secret-vars.yaml"
-# A day's worth of seconds.
-interval=86400
 
 while true
 do
     date
-    echo "Waiting for $interval seconds before starting next backup."
-    sleep $interval
+    echo "Waiting for $BACKUP_INTERVAL_SECONDS seconds before starting next backup."
+    sleep $BACKUP_INTERVAL_SECONDS
     $backupCommand
     exitCode=$?
     if [ $exitCode -ne 0 ]

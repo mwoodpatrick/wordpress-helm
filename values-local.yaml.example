@@ -77,15 +77,13 @@ wordpress:
        phpfile: block-bad-queries.php
 
   ## Enable externally triggered cron for an MU cron plugin
-  # NOTE: A value for mu_cron_enabled must be set. Select either true or false
-  # NOTE: This cron must be triggered by a call you have set up outside the server
+  # NOTE: mu_plugins *must* be enabled if you want to enable mu_cron
   mu_cron:
     enabled: false
-  # name: Cron Control
-  # repo: https://github.com/Automattic/Cron-Control.git
-  # slug: cron-control
-  # version: master
-  # phpfile: cron-control.php
+    # # By default cron runs every 3 minutes, but you can change the schedule
+    # # here:
+    # cronjob:
+    #   schedule: "*/3 * * * *"
 
 # These settings make sense to overwrite if you want to use the OpenID connect
 # plugin
@@ -131,14 +129,33 @@ redis:
 
 
 
-# This will add a cronjob that performs a daily backup of the wordpress
-# database, copying an sql file created by `wp db export` to the given PVC.
-# The persistent volume is not created by this chart, because we don't want it
-# to be managed by helm, so you will need to create it via some other means.
+# This will add a cronjob that performs backups of the wordpress
+# database, copying an sql file created by `wp db export` to the given target.
+#
+# The backups are saved as yyyy-mm-dd and as such if you do several backups per
+# day, previous backups of the same day will be overwritten. There is no cleanup
+# of backups: it is assumed that cleanup is done on the target server.
 # backup:
 #   enabled: true
-#   pvcName: wordpress-backups
-
+#   # The target location of the backup. This can be a local directory (not
+#   # advisable) or a remote directory reachable over SSH. backup command uses
+#   # this value as the second argument for `rsync`
+#   target: <username@server.example.org:backup-dir/>
+#   # If `backup.target` is an SSH address, use this private key:
+#   sshPrivateKey: |
+#     -----BEGIN OPENSSH PRIVATE KEY-----
+#     ...
+#     -----END OPENSSH PRIVATE KEY-----
+#   # This string is mounted as a text file to /etc/ssh/ssh_known_hosts.
+#   # Required when `sshPrivateKey` is provided. Required for SSH host key
+#   # verification. If this is ill-configured, expect a host key verification
+#   # error in the logs of the wordpress-backup container.
+#   # Read the SSH documentation for the correct contents of the ssh_known_hosts
+#   # file. You can use `ssh-keyscan` on a trusted network to find host keys.
+#   sshKnownHosts: |
+#     <hostname> <keytype> <key>
+#   # The interval at which backups occur. Defaults to 86400 seconds (24 hours)
+#   intervalSeconds:
 # It's advisable to set resource limits to prevent your K8s cluster from
 # crashing
 # resources:
