@@ -183,6 +183,8 @@ wordpress:
       annotations: {}
       failedJobsHistoryLimit: 3
       successfulJobsHistoryLimit: 1
+      # Maximum number of times a failing Job is retried.
+      backoffLimit: 1
       # Path to the cronjob PHP file (gets appended to the wordpress URL)
       path: /wp-cron.php
       # You can override this key for the cronjobs. If you don't change the
