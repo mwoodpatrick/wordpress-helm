@@ -10,6 +10,7 @@
 * Set max upload size to 50m
 * Add custom php.ini
 * Fix MU_PLUGIN_DIR path
+* Bump default WordPress version to 5.4.2
 
 ## [0.1.4] - 2020-07-08
 
