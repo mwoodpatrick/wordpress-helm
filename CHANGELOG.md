@@ -1,3 +1,17 @@
+## [0.1.5] - 2020-09-23
+
+* Re-enable some redis commands disabled by Bitnami by default
+* Harden WordPress default file and directory permissions
+* Show external IP in `kubectl logs` output by using mod_remoteip
+* Add Kubernetes CronJob for running Cron-control jobs
+* Rsync backups to remote storage
+* Make `enableServicesLink` flag configurable so services can be hidden from devs
+* Use `us_en` locale by default to prevent problems with new wordpress releases
+* Set max upload size to 50m
+* Add custom php.ini
+* Fix MU_PLUGIN_DIR path
+* Bump default WordPress version to 5.4.2
+
 ## [0.1.4] - 2020-07-08
 
 * Use PodSecurityContext instead of container security contexts
