@@ -181,7 +181,7 @@ wordpress:
         #  cpu: 100m
         #  memory: 128Mi
       annotations: {}
-      failedJobsHistoryLimit: 5
+      failedJobsHistoryLimit: 3
       successfulJobsHistoryLimit: 1
       # Path to the cronjob PHP file (gets appended to the wordpress URL)
       path: /wp-cron.php
