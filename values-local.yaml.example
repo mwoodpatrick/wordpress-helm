@@ -51,10 +51,13 @@ wordpress:
 
   # Install includes all parent, child, default, active and fallback themes 
   # NOTE: Use theme *slugs* here
-  themes_install: "[twentytwenty,twentynineteen]"
-  themes_active: twentytwenty
+  themes_install: 
+   - twentytwenty
+   - twentynineteen
+  # this is the active theme. Also would be the child theme 
+  theme_active: twentytwenty
   # A fallback theme will be used if there is a repository or availability error 
-  themes_fallback: twentytwenty 
+  theme_fallback: twentytwenty 
 
   wp_content:
     # The directory to mount the files placed in wp-content. You shouldn't have to

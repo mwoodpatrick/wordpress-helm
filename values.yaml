@@ -116,10 +116,12 @@ wordpress:
 
   # Install includes all parent, child, default, active and fallback themes 
   # NOTE: Use theme *slugs* here
-  themes_install: "[twentytwenty,twentynineteen]"
-  themes_active: twentytwenty
+  themes_install: 
+    - twentytwenty
+    - twentynineteen
+  theme_active: twentytwenty
   # A fallback theme will be used if there is a repository or availability error 
-  themes_fallback: twentytwenty 
+  theme_fallback: twentytwenty 
 
     
 
@@ -365,9 +367,9 @@ ansibleSecrets: |
   WP_REDIS_ENABLED: {{ .Values.redis.enabled }}
   WP_REDIS_HOST: {{ .Release.Name }}-redis-master
   WP_REDIS_PASSWORD: {{ .Values.redis.password | default ( randAlphaNum 15 ) }}
-  WP_THEMES_ACTIVE: {{ .Values.wordpress.themes_active }}
+  WP_THEME_ACTIVE: {{ .Values.wordpress.themes_active }}
   WP_THEMES_INSTALL: {{ .Values.wordpress.themes_install }}
-  WP_THEMES_FALLBACK: {{ .Values.wordpress.themes_fallback }}
+  WP_THEME_FALLBACK: {{ .Values.wordpress.themes_fallback }}
   WP_TITLE: {{ .Values.wordpress.site.title }}
   WP_UPLOAD_DIR: {{ .Values.wordpress.wp_upload.mount_path }}
   WP_URL: {{ .Values.wordpress.site.url }}
