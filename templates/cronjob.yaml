@@ -25,6 +25,9 @@ spec:
         app.kubernetes.io/name: {{ include "wordpress.name" . }}
         app.kubernetes.io/managed-by: {{ .Release.Service }}
     spec:
+      {{- with .Values.wordpress.mu_cron.cronjob.backoffLimit }}
+      backoffLimit: {{ . }}
+      {{- end }}
       template:
         metadata:
           labels:

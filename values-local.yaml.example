@@ -71,7 +71,13 @@ wordpress:
       <Files ~ ".(woff|xml|css|js|jpe?g|png|gif)$">
         Require all granted
       </Files>
-  
+
+  ## Set default permissions given to files and directories by Wordpress
+  ## Strong and writeable defaults are 750 and 640
+  #permissions:
+  #  directory_mode: 0750
+  #  files_mode: 0640
+
   ## mu_plugins are installed as hidden and cannot be updated from the UI
   ## mu_dir  'mu-plugins' maps to wp-content/mu-plugins
   ## mu_plugins supplies a detailed list of mu values and plugins with versions
@@ -122,17 +128,20 @@ database:
 # installed as a convential plugin and configured to connect to this Redis
 # Change Redis MU plugin configurations to use MU instead
 redis:
+  # Set redis.enabled to true to have a Redis container next to your WP. The WP will be
+  # configured to connect to this Redis and `Redis Object Cache` plugin will be
+  # installed as a conventional plugin.
   enabled: false
 # password: <SET A REDIS PASSWORD HERE>
-#
-#   # Set to true you want redis to have persistence:
-# master:
-#   persistence:
-#     enabled: false
-#
-#   # Set to true to have a master and a slave redis. Not necessary for caching
-#   cluster:
-#     enabled: false
+#   master:
+#     persistence:
+#     # Set persistence to true you want redis to have persistence
+#       enabled: false
+#     # disableCommand is set as null to enable FLUSHALL and FLUSHDB and allow cache purge and flush  
+#     disableCommands: []
+#  cluster:
+#  #Set redis.cluster.enabled as true to have a master and a slave redis. Not necessary for caching
+#    enabled: false
 
 
 
