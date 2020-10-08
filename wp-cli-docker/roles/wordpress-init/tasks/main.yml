@@ -151,7 +151,7 @@
     - debug:
         msg: 'Local theme does not exist or error'
     - name: Pull the default theme set in values.yaml and then activate
-      shell: wp {{ cli_args }} theme install "{{ WP_THEMES_FALLBACK }}" --activate
+      shell: wp {{ cli_args }} theme install "{{ WP_THEME_FALLBACK }}" --activate
     - debug:
         msg: "Fallback theme {{ WP_THEME_FALLBACK }} has been installed"
 
