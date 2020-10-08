@@ -153,7 +153,7 @@
     - name: Pull the default theme set in values.yaml and then activate
       shell: wp {{ cli_args }} theme install "{{ WP_THEMES_FALLBACK }}" --activate
     - debug:
-        msg: "Fallback theme {{ WP_THEMES_FALLBACK }} has been installed"
+        msg: "Fallback theme {{ WP_THEME_FALLBACK }} has been installed"
 
 # Plugins
 - name: Install WordPress plugins that are activated
