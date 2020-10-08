@@ -144,7 +144,7 @@
     - debug:
         msg: "Trying the configured theme - {{ WP_THEMES_ACTIVE }}"
     - name: Activate theme if exists in wp-content-repo
-      shell: wp {{ cli_args }} theme activate "{{ WP_THEMES_ACTIVE }}"
+      shell: wp {{ cli_args }} theme activate "{{ WP_THEME_ACTIVE }}"
     - debug:
         msg: 'Success'
   rescue:
