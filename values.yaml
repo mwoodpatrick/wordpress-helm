@@ -367,7 +367,7 @@ ansibleSecrets: |
   WP_REDIS_HOST: {{ .Release.Name }}-redis-master
   WP_REDIS_PASSWORD: {{ .Values.redis.password | default ( randAlphaNum 15 ) }}
   WP_THEME_ACTIVE: {{ .Values.wordpress.themes_active }}
-  WP_THEMES_INSTALL: {{ .Values.wordpress.themes_install }}
+  WP_THEMES_INSTALL: {{ .Values.wordpress.themes_install | toList }}
   WP_THEME_FALLBACK: {{ .Values.wordpress.themes_fallback }}
   WP_TITLE: {{ .Values.wordpress.site.title }}
   WP_UPLOAD_DIR: {{ .Values.wordpress.wp_upload.mount_path }}
