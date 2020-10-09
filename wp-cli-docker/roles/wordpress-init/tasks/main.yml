@@ -140,18 +140,18 @@
 - name: Themes activate block
   block:
     - debug:
-        msg: "Trying the configured theme - {{ WP_THEMES_ACTIVE }}"
+        msg: "Trying the configured theme - {{ WP_THEME_ACTIVE }}"
     - name: Activate theme if exists in wp-content-repo
-      shell: wp {{ cli_args }} theme activate "{{ WP_THEMES_ACTIVE }}"
+      shell: wp {{ cli_args }} theme activate "{{ WP_THEME_ACTIVE }}"
     - debug:
         msg: 'Success'
   rescue:
     - debug:
         msg: 'Local theme does not exist or error'
     - name: Pull the default theme set in values.yaml and then activate
-      shell: wp {{ cli_args }} theme install "{{ WP_THEMES_FALLBACK }}" --activate
+      shell: wp {{ cli_args }} theme install "{{ WP_THEME_FALLBACK }}" --activate
     - debug:
-        msg: "Fallback theme {{ WP_THEMES_FALLBACK }} has been installed"
+        msg: "Fallback theme {{ WP_THEME_FALLBACK }} has been installed"
 
 # Plugins
 - name: Install WordPress plugins that are activated
