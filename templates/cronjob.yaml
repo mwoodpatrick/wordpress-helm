@@ -45,14 +45,22 @@ spec:
             - name: {{ .Chart.Name }}-cron-caller
               image: "{{ default .Values.image.repository .Values.wordpress.mu_cron.cronjob.image.repository }}:{{ default .Values.image.tag .Values.wordpress.mu_cron.cronjob.image.tag }}"
               imagePullPolicy: {{ default .Values.image.pullPolicy .Values.wordpress.mu_cron.cronjob.image.pullPolicy }}
-              command: [ "curl" ]
+              command: [ "/bin/sh" ]
               args:
-              {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }}
-                - "-k"
-              {{- end }}
-                - "--fail"
-                - "-L"
-                - "http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}"
+                - -c
+                - |
+                  output=$(curl -w '%{http_code}' {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }} -k {{- end }} --no-progress-meter -L 'http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}')
+                  # If the output is `000`, the service is not running yet. If
+                  # the output is exactly 200, the service is working.
+                  # Note that if the output is 200invalid secret string, you
+                  # need to provide the correct secret!
+                  if [[ "$output" == "000" ]] || [[ "$output" == "200" ]]; then
+                    echo "success";
+                    exit 0
+                  else
+                    echo "failed with output '$output'";
+                    exit 1
+                  fi
               {{- with .Values.wordpress.mu_cron.cronjob.resources }}
               resources:
                 {{ toYaml . | nindent 16 }}
