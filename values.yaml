@@ -94,9 +94,6 @@ wordpress:
       enabled: false
       plugins: []
       config: []
-    # NOTE: Use a theme *slug* here
-    theme: twentytwenty
-    theme_fallback: twentytwenty
     # NOTE: Languages are ALL available languages. en_US is always installed but it is shown explicitly
     # EXAMPLE: `languages: "[en_US,fi_FI,wo]"` would install US English, Finnish and Wolof
     # EXAMPLE: `default_language: fi_FI` would set Finnish for the core language
@@ -116,6 +113,17 @@ wordpress:
     probe_path: /wp-login.php
     # Set to true to set WP_DEBUG on in the configuration
     debug: false
+
+  # Install includes all parent, child, default, active and fallback themes 
+  # NOTE: Use theme *slugs* here
+  themes_install: 
+    - twentynineteen
+  theme_active: twentynineteen
+  # Fallback theme from wordpress repo which is fetched + activated if helm reports an error 
+  theme_fallback: twentytwenty 
+
+    
+
 
   wp_content:
     ## The directory to mount the files placed in wp-content. You shouldn't have to
@@ -358,8 +366,9 @@ ansibleSecrets: |
   WP_REDIS_ENABLED: {{ .Values.redis.enabled }}
   WP_REDIS_HOST: {{ .Release.Name }}-redis-master
   WP_REDIS_PASSWORD: {{ .Values.redis.password | default ( randAlphaNum 15 ) }}
-  WP_THEME: {{ .Values.wordpress.site.theme }}
-  WP_THEME_FALLBACK: {{ .Values.wordpress.site.theme_fallback }}
+  WP_THEME_ACTIVE: {{ .Values.wordpress.theme_active }}
+  WP_THEMES_INSTALL: {{ .Values.wordpress.themes_install }}
+  WP_THEME_FALLBACK: {{ .Values.wordpress.theme_fallback }}
   WP_TITLE: {{ .Values.wordpress.site.title }}
   WP_UPLOAD_DIR: {{ .Values.wordpress.wp_upload.mount_path }}
   WP_URL: {{ .Values.wordpress.site.url }}

@@ -36,7 +36,7 @@ For a simple WordPress installation, you only need to edit the following values:
 |---------------------------------------|-----------------------------------------------|-----------------------------------|
 | `ansibleVars.WP_URL`                  | The URL of your WordPress website             | http://localhost                  |
 | `ansibleVars.WP_TITLE`                | The title of the site                         | Demo WP                           |
-| `ansibleVars.WP_THEME`                | A *slug* for the theme you want to install on your site (can also be changed through interface) | twentytwenty |
+| `ansibleVars.WP_THEME_ACTIVE`                | A *slug* for the theme you want to install on your site (can also be changed through interface) | twentytwenty |
 | `ansibleVars.WP_EMAIL`                | The administrator's email adress              | youremailhere@example.com         |
 | `database.db.user`                    | Database user                                 | wordpress                         |
 | `database.db.password`                | `wordpress` db user password                  | You **really** need to set this   |

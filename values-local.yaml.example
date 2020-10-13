@@ -24,8 +24,6 @@ wordpress:
       usid: admin
       pssw: CHANGE-THIS-PASSWORD
   site:
-    # NOTE: Use a theme *slug* here
-    theme: twentynineteen
     # NOTE: Make sure you use underscore and that the localisation is in full caps
     default_language: en_US
     # NOTE: Optionally set a Wordpress version number to override the default
@@ -50,6 +48,16 @@ wordpress:
     # probe_path: /wp-login.php
     # Turn on WordPress' debug mode
     # debug: true
+
+  # Install includes all parent, child, default, active and fallback themes 
+  # NOTE: Use theme *slugs* here
+  themes_install: 
+   - twentynineteen
+  # this is the active theme. Also would be the child theme 
+  theme_active: twentynineteen
+  # Fallback theme from wordpress repo which is fetched + activated if helm reports an error 
+  theme_fallback: twentytwenty 
+
   wp_content:
     # The directory to mount the files placed in wp-content. You shouldn't have to
     # change this.
@@ -71,7 +79,6 @@ wordpress:
   #permissions:
   #  directory_mode: 0750
   #  files_mode: 0640
-
 
   ## mu_plugins are installed as hidden and cannot be updated from the UI
   ## mu_dir  'mu-plugins' maps to wp-content/mu-plugins
