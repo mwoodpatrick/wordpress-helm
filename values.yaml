@@ -239,9 +239,6 @@ ansibleVars:
   ## Plugins
   wordpress_default_plugins: "[classic-editor]"
 
-wpSalts:
-  WP_CRON_CONTROL_SECRET: randomstring
-
 image:
   repository: open.greenhost.net:4567/openappstack/wordpress-helm/wordpress
   tag: 0.1.5
@@ -424,7 +421,7 @@ ansibleSecrets: |
     SECURE_AUTH_KEY: {{ .Values.wpSalts.SECURE_AUTH_KEY | default ( randAlphaNum 32) }}
     SECURE_AUTH_SALT: {{ .Values.wpSalts.SECURE_AUTH_SALT | default ( randAlphaNum 32) }}
     WP_CACHE_KEY_SALT: {{ .Values.wpSalts.WP_CACHE_KEY_SALT | default ( randAlphaNum 32) }}
-    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}
+    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET | default ( randAlphaNum 32) }}
 
 ## Liveness and readiness probe values
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
