@@ -34,6 +34,9 @@ spec:
             app.kubernetes.io/name: {{ include "wordpress.name" . }}
             app.kubernetes.io/managed-by: {{ .Release.Service }}
         spec:
+          # Set a custom service account which has access to the WordPress
+          # statefulset's state
+          serviceAccountName: {{ include "wordpress.fullname" . }}-account
           restartPolicy: Never
           {{- if (default .Values.image.pullSecrets .Values.wordpress.mu_cron.cronjob.image.pullSecrets) }}
           imagePullSecrets:
@@ -49,18 +52,23 @@ spec:
               args:
                 - -c
                 - |
-                  output=$(curl -w '%{http_code}' {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }} -k {{- end }} --no-progress-meter -L 'http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}')
+                  KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+                  KUBE_NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+                  curl -Sk -H "Authorization: Bearer $KUBE_TOKEN" \
+                    https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_PORT_443_TCP_PORT/api/v1/namespaces/$KUBE_NAMESPACE/statefulset/{{ include "wordpress.fullname" . }}
+
+                  # output=$(curl -w '%{http_code}' {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }} -k {{- end }} --no-progress-meter -L 'http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}')
                   # If the output is `000`, the service is not running yet. If
                   # the output is exactly 200, the service is working.
                   # Note that if the output is 200invalid secret string, you
                   # need to provide the correct secret!
-                  if [[ "$output" == "000" ]] || [[ "$output" == "200" ]]; then
-                    echo "success";
-                    exit 0
-                  else
-                    echo "failed with output '$output'";
-                    exit 1
-                  fi
+                  # if [[ "$output" == "000" ]] || [[ "$output" == "200" ]]; then
+                  #   echo "success";
+                  #   exit 0
+                  # else
+                  #   echo "failed with output '$output'";
+                  #   exit 1
+                  # fi
               {{- with .Values.wordpress.mu_cron.cronjob.resources }}
               resources:
                 {{ toYaml . | nindent 16 }}
