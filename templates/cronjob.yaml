@@ -52,7 +52,6 @@ spec:
               args:
                 - -c
                 - |
-                  set -o errexit
                   # NOTE: we use "{{` ... `}}" to make sure the curly braces are not templated by Helm. Returns <#readyReplicas>,<#replicasWanted>
                   equation=$(kubectl get statefulset {{ include "wordpress.fullname" . }} --template '{{ `{{.status.readyReplicas}},{{.status.replicas}}` }}')
                   # Make sure kubectl command did not fail
