@@ -1,0 +1,29 @@
+{{- if .Values.wordpress.mu_cron.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: get-{{ include "wordpress.fullname" . }}-statefulset
+rules:
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    resourceNames: [{{ include "wordpress.fullname" . }}]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-{{ include "wordpress.fullname" . }}-statefulset
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "wordpress.fullname" . }}-cron
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: get-{{ include "wordpress.fullname" . }}-statefulset
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "wordpress.fullname" . }}-cron
+{{- end }}

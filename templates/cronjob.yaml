@@ -34,6 +34,9 @@ spec:
             app.kubernetes.io/name: {{ include "wordpress.name" . }}
             app.kubernetes.io/managed-by: {{ .Release.Service }}
         spec:
+          # Set a custom service account which has access to the WordPress
+          # statefulset's state
+          serviceAccountName: {{ include "wordpress.fullname" . }}-cron
           restartPolicy: Never
           {{- if (default .Values.image.pullSecrets .Values.wordpress.mu_cron.cronjob.image.pullSecrets) }}
           imagePullSecrets:
@@ -45,14 +48,33 @@ spec:
             - name: {{ .Chart.Name }}-cron-caller
               image: "{{ default .Values.image.repository .Values.wordpress.mu_cron.cronjob.image.repository }}:{{ default .Values.image.tag .Values.wordpress.mu_cron.cronjob.image.tag }}"
               imagePullPolicy: {{ default .Values.image.pullPolicy .Values.wordpress.mu_cron.cronjob.image.pullPolicy }}
-              command: [ "curl" ]
+              command: [ "/bin/bash" ]
               args:
-              {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }}
-                - "-k"
-              {{- end }}
-                - "--fail"
-                - "-L"
-                - "http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}"
+                - -c
+                - |
+                  # NOTE: we use "{{` ... `}}" to make sure the curly braces are not templated by Helm. Returns <#readyReplicas>,<#replicasWanted>
+                  equation=$(kubectl get statefulset {{ include "wordpress.fullname" . }} --template '{{ `{{.status.readyReplicas}},{{.status.replicas}}` }}')
+                  # Make sure kubectl command did not fail
+                  if [ $? -ne 0 ]; then
+                      echo "Kubernetes command failed";
+                      exit 2;
+                  fi
+                  # Check if part before comma and after comma are equal
+                  if [[ "${equation%,*}" == "${equation#*,}" ]]; then
+                    output=$(curl -s -w '%{http_code}' {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }} -k {{- end }} -L 'http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}')
+                    # Note that if the output is 200invalid secret string, you
+                    # need to provide the correct secret!
+                    if [[ "$output" == "200" ]]; then
+                      echo "success";
+                      exit 0
+                    else
+                      echo "failed with output '$output'";
+                      exit 1
+                    fi
+                  fi
+                  # If we reach this point, the statefulset is not ready yet
+                  echo "Service is not ready, doing nothing"
+                  exit 0
               {{- with .Values.wordpress.mu_cron.cronjob.resources }}
               resources:
                 {{ toYaml . | nindent 16 }}

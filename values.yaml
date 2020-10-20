@@ -170,8 +170,8 @@ wordpress:
     # Optional annotations to add to the cronjob object
     cronjob:
       image:
-        repository: curlimages/curl
-        tag: latest
+        repository: bitnami/kubectl
+        tag: 1.18
         pullPolicy: Always
       # Every 3 minutes
       schedule: "*/3 * * * *"
