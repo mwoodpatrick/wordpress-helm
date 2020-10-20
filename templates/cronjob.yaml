@@ -48,27 +48,28 @@ spec:
             - name: {{ .Chart.Name }}-cron-caller
               image: "{{ default .Values.image.repository .Values.wordpress.mu_cron.cronjob.image.repository }}:{{ default .Values.image.tag .Values.wordpress.mu_cron.cronjob.image.tag }}"
               imagePullPolicy: {{ default .Values.image.pullPolicy .Values.wordpress.mu_cron.cronjob.image.pullPolicy }}
-              command: [ "/bin/sh" ]
+              command: [ "/bin/bash" ]
               args:
                 - -c
                 - |
-                  KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-                  KUBE_NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-                  curl -Sk -H "Authorization: Bearer $KUBE_TOKEN" \
-                    https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_PORT_443_TCP_PORT/api/v1/namespaces/$KUBE_NAMESPACE/statefulset/{{ include "wordpress.fullname" . }}
-
-                  # output=$(curl -w '%{http_code}' {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }} -k {{- end }} --no-progress-meter -L 'http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}')
-                  # If the output is `000`, the service is not running yet. If
-                  # the output is exactly 200, the service is working.
-                  # Note that if the output is 200invalid secret string, you
-                  # need to provide the correct secret!
-                  # if [[ "$output" == "000" ]] || [[ "$output" == "200" ]]; then
-                  #   echo "success";
-                  #   exit 0
-                  # else
-                  #   echo "failed with output '$output'";
-                  #   exit 1
-                  # fi
+                  # NOTE: we use "{{` ... `}}" to make sure the curly braces are not templated by Helm. Returns <#readyReplicas>,<#replicasWanted>
+                  equation=$(kubectl get statefulset {{ include "wordpress.fullname" . }} --template '{{ `{{.status.readyReplicas}},{{.status.replicas}}` }}')
+                  # Check if part before comma and after comma are equal
+                  if [[ "${equation%,*}" == "${equation#*,}" ]]; then
+                    output=$(curl -s -w '%{http_code}' {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }} -k {{- end }} -L 'http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}')
+                    # Note that if the output is 200invalid secret string, you
+                    # need to provide the correct secret!
+                    if [[ "$output" == "200" ]]; then
+                      echo "success";
+                      exit 0
+                    else
+                      echo "failed with output '$output'";
+                      exit 1
+                    fi
+                  fi
+                  # If we reach this point, the statefulset is not ready yet
+                  echo "Service is not ready, doing nothing"
+                  exit 0
               {{- with .Values.wordpress.mu_cron.cronjob.resources }}
               resources:
                 {{ toYaml . | nindent 16 }}
