@@ -163,7 +163,7 @@ wordpress:
     cronjob:
       image:
         repository: bitnami/kubectl
-        tag: latest
+        tag: 1.18
         pullPolicy: Always
       # Every 3 minutes
       schedule: "*/3 * * * *"
