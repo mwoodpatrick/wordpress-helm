@@ -15,7 +15,7 @@ metadata:
   name: read-{{ include "wordpress.fullname" . }}-statefulset
 subjects:
   - kind: ServiceAccount
-    name: {{ include "wordpress.fullname" . }}-account
+    name: {{ include "wordpress.fullname" . }}-cron
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
@@ -25,5 +25,5 @@ roleRef:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ include "wordpress.fullname" . }}-account
+  name: {{ include "wordpress.fullname" . }}-cron
 {{- end }}

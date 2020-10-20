@@ -36,7 +36,7 @@ spec:
         spec:
           # Set a custom service account which has access to the WordPress
           # statefulset's state
-          serviceAccountName: {{ include "wordpress.fullname" . }}-account
+          serviceAccountName: {{ include "wordpress.fullname" . }}-cron
           restartPolicy: Never
           {{- if (default .Values.image.pullSecrets .Values.wordpress.mu_cron.cronjob.image.pullSecrets) }}
           imagePullSecrets:
@@ -52,8 +52,14 @@ spec:
               args:
                 - -c
                 - |
+                  set -o errexit
                   # NOTE: we use "{{` ... `}}" to make sure the curly braces are not templated by Helm. Returns <#readyReplicas>,<#replicasWanted>
                   equation=$(kubectl get statefulset {{ include "wordpress.fullname" . }} --template '{{ `{{.status.readyReplicas}},{{.status.replicas}}` }}')
+                  # Make sure kubectl command did not fail
+                  if [ $? -ne 0 ]; then
+                      echo "Kubernetes command failed";
+                      exit 2;
+                  fi
                   # Check if part before comma and after comma are equal
                   if [[ "${equation%,*}" == "${equation#*,}" ]]; then
                     output=$(curl -s -w '%{http_code}' {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }} -k {{- end }} -L 'http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wpSalts.WP_CRON_CONTROL_SECRET }}')
