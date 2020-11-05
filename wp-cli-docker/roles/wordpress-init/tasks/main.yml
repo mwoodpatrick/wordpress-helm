@@ -86,6 +86,9 @@
             --admin_password="{{ WP_PASS }}"
             --admin_email="{{ WP_EMAIL }}"
 
+- name: Always execute DB update
+  shell: wp {{ cli_args }} core update-db
+
 - name: Users can update plugins from dashboard
   shell: wp {{ cli_args }} config set FS_METHOD direct --add --type=constant
 
