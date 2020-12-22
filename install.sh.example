@@ -7,9 +7,12 @@
 # Edit the `releaseName` variable below  if you want to release several
 # production sites.
 
+# Additional parameters can be provided to the script and will be forwarded to
+# the `helm` command.
+
 set -v
 
 releaseName="wordpress-production"
 
 # Upgrade or install application using the current git branch as docker tag
-helm upgrade $releaseName . --install -f values-local.yaml
+helm upgrade $releaseName . --install -f values-local.yaml "$@"
