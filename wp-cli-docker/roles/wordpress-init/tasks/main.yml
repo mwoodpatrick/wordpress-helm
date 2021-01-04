@@ -13,11 +13,12 @@
 - name: Add uploads symlink
   file:
     src: "{{ WP_UPLOAD_DIR }}"
-    path: "{{ wordpress_homedir }}/wp-content/uploads"
+    path: "{{ WP_CONTENT_MOUNT }}/uploads"
     state: link
     # Force this, because the WP UPLOAD DIR is not mounted to the initContainer
     force: yes
-  when: WP_UPLOAD_DIR != wordpress_homedir + "/wp-content/uploads"
+    follow: no  # FIXME: https://github.com/ansible/ansible/issues/50543
+  when: WP_UPLOAD_DIR != WP_CONTENT_MOUNT + "/uploads"
 
 - name: Download WordPress
   shell: wp {{ cli_args }} core download
