@@ -13,14 +13,14 @@
 # Directories
 
 - name: Bulk directory ownership
-  command: find {{ config_dir }} -type d  -exec chown -c {{ wp_user }}:{{ wp_group }} {} \;
+  command: find {{ config_dir }} -type d  -exec chown -c 33:33 {} \;
 
 - name: Bulk directory permissions
   command: find  {{ config_dir }} -type d  -exec chmod -c {{ mode_0750 }} {} \;
 
 # Files 
 - name: Bulk file ownership
-  command: find  {{ config_dir }} -type f \( -iname "*.*" ! -iname  "*htaccess" ! -iname "wp-config*"  \)  -exec chown -c {{ wp_user }}:{{ wp_group }} {} \;
+  command: find  {{ config_dir }} -type f \( -iname "*.*" ! -iname  "*htaccess" ! -iname "wp-config*"  \)  -exec chown -c 33:33 {} \;
 
 - name: Dot file ownership
   command: find {{ wordpress_homedir }} -type f -maxdepth 1 \( -iname "\.*" ! -iname  "*htaccess" ! -iname "wp-config*"  \) -exec chown -c {{ config_user }}:{{ config_group }} {} \;

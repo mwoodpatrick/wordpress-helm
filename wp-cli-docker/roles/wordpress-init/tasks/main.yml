@@ -41,8 +41,8 @@
 - name: Prepare wp-config permissions if it exists
   file:
     path: "{{ wordpress_homedir }}/wp-config.php"
-    owner: "{{ wp_user }}"
-    group: "{{ wp_group }}"
+    owner: 33
+    group: 33
     mode: 0640
   ignore_errors: true
   when: config.stat.exists
