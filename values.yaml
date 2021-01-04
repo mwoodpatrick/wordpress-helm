@@ -339,6 +339,8 @@ backup:
   enabled: false
   intervalSeconds: 86400
 
+wpSalts: {}
+
 # Some of the variables configured above are put into a variable here, that's
 # completely stored as a b64encoded secret in Kubernetes. If you're not a
 # developer, never change this variable, only change the variables it points to.
