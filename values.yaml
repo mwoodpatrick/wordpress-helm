@@ -157,11 +157,12 @@ wordpress:
   mu_plugins: {}
 
   ## Enable externally triggered cron with a cron plugin
-  # NOTE: mu_cron is disabled by default. Set `mu_cron.enabled` to `true` in
-  # your values-local to enable mu_cron.
+  # NOTE: mu_cron is disabled by default. Set `mu_cron.enabled` to `true` and
+  # set a random `mu_cron.secret` in your values-local to enable mu_cron.
   # NOTE: mu_plugins needs to be enabled to enable mu_cron!
   mu_cron:
     enabled: false
+    secret: REPLACE_WITH_RANDOM_SECRET
     name: Cron Control
     repo: https://github.com/Automattic/wp-cron-control.git
     slug: wp-cron-control
@@ -421,7 +422,6 @@ ansibleSecrets: |
     SECURE_AUTH_KEY: {{ .Values.wpSalts.SECURE_AUTH_KEY | default ( randAlphaNum 32) }}
     SECURE_AUTH_SALT: {{ .Values.wpSalts.SECURE_AUTH_SALT | default ( randAlphaNum 32) }}
     WP_CACHE_KEY_SALT: {{ .Values.wpSalts.WP_CACHE_KEY_SALT | default ( randAlphaNum 32) }}
-    WP_CRON_CONTROL_SECRET: {{ .Values.wpSalts.WP_CRON_CONTROL_SECRET | default ( randAlphaNum 32) }}
 
 ## Liveness and readiness probe values
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes

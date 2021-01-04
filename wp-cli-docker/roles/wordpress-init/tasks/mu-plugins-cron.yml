@@ -2,17 +2,20 @@
 
 # WP Configuration for MU
 
-- name:  Set content directory variable in wp-config
+- name: Set content directory variable in wp-config
   shell: wp {{ cli_args }} config set  'WP_CONTENT_DIR' "ABSPATH . 'wp-content'"  --raw --type=constant
 
-- name:  Set MU plugins directory in wp-config
+- name: Set MU plugins directory in wp-config
   shell: wp {{ cli_args }} config set  'WPMU_PLUGIN_DIR' "ABSPATH . 'wp-content/{{ WP_MU_PLUGINS_DIR }}'"  --raw --type=constant
 
-- name:  Set content url variable in wp-config
+- name: Set content url variable in wp-config
   shell: wp {{ cli_args }} config set  'WP_CONTENT_URL' "'{{ WP_URL }}/wp-content'"  --raw --type=constant
 
-- name:  Set MU plugins url in wp-config
+- name: Set MU plugins url in wp-config
   shell: wp {{ cli_args }} config set  'WPMU_PLUGIN_URL' "'{{ WP_URL }}/wp-content/mu-plugins'"  --raw --type=constant
+
+- name: Set mu_cron salt value
+  shell: wp {{ cli_args }} config set 'WP_CRON_CONTROL_SECRET' "{{ WP_MU_CRON_SETTINGS.secret }}" --add --type=constant
 
 # MU plugins directory and loader
 
@@ -44,7 +47,7 @@
     loop_var: wp_mu_plugin
 
 
-### Install wp-cron as mu 
+### Install wp-cron as mu
 
 - name: Shallow clone from the github repository
   git:
