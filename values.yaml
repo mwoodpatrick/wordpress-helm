@@ -157,8 +157,9 @@ wordpress:
   mu_plugins: {}
 
   ## Enable externally triggered cron with a cron plugin
-  # NOTE: mu_cron is disabled by default. Set `mu_cron.enabled` to `true` and
-  # set a random `mu_cron.secret` in your values-local to enable mu_cron.
+  # NOTE: mu_cron is disabled by default. Set `wordpress.mu_cron.enabled` to
+  # `true` and set a random `wordpress.mu_cron.secret` in your values-local to
+  # enable mu_cron.
   # NOTE: mu_plugins needs to be enabled to enable mu_cron!
   mu_cron:
     enabled: false
