@@ -21,6 +21,7 @@ RUN chown -R 33:33 /var/local/ansible; \
 
 WORKDIR /var/local/ansible
 
-USER www-data
+# User 33 is www-data in the PHP container
+USER 33
 
 CMD ["ansible-playbook", "wpdeploy.yml", "-e", "@secrets/secret-vars.yaml"]

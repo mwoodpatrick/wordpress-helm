@@ -220,10 +220,10 @@ wp-content contents to the pod with the following command:
 $ kubectl cp uploads/ wordpress-master-0:/var/www/wp-uploads-mount
 ```
 
-You'll have to change the ownership of the files to the `www-data` user: 
+You'll have to change the ownership of the files to UID 33 (the `www-data` user in the WordPress container):
 
 ```bash
-$ kubectl exec -it wordpress-master-0 -- chown -R www-data:www-data /var/www/wp-uploads-mount
+$ kubectl exec -it wordpress-master-0 -- chown -R 33:33 /var/www/wp-uploads-mount
 ```
 
 Note: this will say 

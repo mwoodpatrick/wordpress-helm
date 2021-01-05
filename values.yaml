@@ -217,8 +217,6 @@ service:
 ## task. Feel free to override these if necessary
 ansibleVars:
   wordpress_homedir: /var/www/html
-  wp_user: www-data
-  wp_group: www-data
   config_user: nobody
   config_group: nogroup
   dbcharset: utf8mb4
