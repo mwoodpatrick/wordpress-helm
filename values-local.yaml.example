@@ -96,7 +96,7 @@ wordpress:
   # NOTE: mu_plugins *must* be enabled if you want to enable mu_cron
   mu_cron:
     enabled: false
-    secret: REPLACE_WITH_RANDOM_SECRET
+    # secret: <Set random secret here>
     # # By default cron runs every 3 minutes, but you can change the schedule
     # # here:
     # cronjob:

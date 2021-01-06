@@ -61,7 +61,7 @@ spec:
                   fi
                   # Check if part before comma and after comma are equal
                   if [[ "${equation%,*}" == "${equation#*,}" ]]; then
-                    output=$(curl -s -w '%{http_code}' {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }} -k {{- end }} -L 'http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ .Values.wordpress.mu_cron.secret }}')
+                    output=$(curl -s -w '%{http_code}' {{- if .Values.wordpress.mu_cron.cronjob.curlInsecure }} -k {{- end }} -L 'http://{{ include "wordpress.fullname" . }}:{{ .Values.service.port }}{{ .Values.wordpress.mu_cron.cronjob.path }}?doing_wp_cron&{{ required "Please set wordpress.mu_cron.secret to a random secret" .Values.wordpress.mu_cron.secret }}')
                     # Note that if the output is 200invalid secret string, you
                     # need to provide the correct secret!
                     if [[ "$output" == "200" ]]; then

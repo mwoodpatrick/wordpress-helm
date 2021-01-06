@@ -163,7 +163,7 @@ wordpress:
   # NOTE: mu_plugins needs to be enabled to enable mu_cron!
   mu_cron:
     enabled: false
-    secret: REPLACE_WITH_RANDOM_SECRET
+    # secret: <overwrite this value in values-local.yaml>
     name: Cron Control
     repo: https://github.com/Automattic/wp-cron-control.git
     slug: wp-cron-control
