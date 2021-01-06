@@ -3,4 +3,5 @@ charts
 values-*.yaml
 install*.sh
 requirements.lock
+test-install.sh
 /data/
