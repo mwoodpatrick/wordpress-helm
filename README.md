@@ -232,18 +232,8 @@ Don't worry, that's the mounted `.htaccess` file. All the other files' ownership
 
 ## Known issues
 
-The logs of your init container will contain the following warning: 
-
-```
-TASK [wordpress-init : Add uploads symlink] ************************************
-changed: [localhost]
- [WARNING]: Cannot set fs attributes on a non-existent symlink target. follow
-should be set to False to avoid this.
-```
-
-This is not a problem. This happens because the wp-uploads directory is
-intentionally not mounted to the init container so a new WordPress can be
-initialised while an old one is still running. 
+Take a look at https://open.greenhost.net/openappstack/wordpress-helm/-/issues
+for issues that are already reported.
 
 ## Attribution
 
