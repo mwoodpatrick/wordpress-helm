@@ -1,3 +1,13 @@
+## [0.1.6] - 2021-01-14
+
+* Improve how `WP_CRON_CONTROL_SECRET` works / make sure `helm install` works with default values
+* Add support for parent and child themes
+* Only spawn cronjobs if the WordPress pod is ready
+* Update database in Ansible playbook
+* Allow extra arguments to `install.sh` scripts
+* Fix rights issue with `config.php` that caused restarted pods to fail
+* Squelch "Cannot set fs attributes on a non-existent symlink target" message
+
 ## [0.1.5] - 2020-09-23
 
 * Re-enable some redis commands disabled by Bitnami by default
