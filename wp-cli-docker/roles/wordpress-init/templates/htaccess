@@ -15,9 +15,10 @@ RewriteRule .* - [F,L]
 RewriteRule ^author/ - [F,L]
 </IfModule>
 
-## Deny all txt except robots http://serverfault.com/a/622337
+## Deny all txt except robots and ads http://serverfault.com/a/622337
 <IfModule mod_rewrite.c>
 RewriteCond %{REQUEST_URI} !/robots\.txt$ [nocase]
+RewriteCond %{REQUEST_URI} !/ads\.txt$ [nocase]
 RewriteRule \.txt$  -  [forbidden,last]
 </IfModule>
 

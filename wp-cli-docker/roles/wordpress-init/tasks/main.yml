@@ -122,6 +122,10 @@
     src: templates/htaccess
     dest: "{{ wordpress_homedir }}/.htaccess"
 
+- name: Copy ads.txt file
+  template:
+    src: templates/ads.txt
+    dest: "{{ wordpress_homedir }}/ads.txt"
 
 - name: Comment close options
   shell: wp {{ cli_args }} option set close_comments_days_old 90
